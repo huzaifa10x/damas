@@ -25,7 +25,7 @@ for f in common/config/params-local.php frontend/config/params-local.php backend
 done
 
 echo "==> Making runtime and asset folders writable"
-mkdir -p frontend/runtime backend/runtime console/runtime frontend/web/assets backend/web/assets
+mkdir -p frontend/runtime/sessions backend/runtime/sessions console/runtime frontend/web/assets backend/web/assets
 chmod -R 777 frontend/runtime backend/runtime console/runtime frontend/web/assets backend/web/assets
 
 echo "==> Checking the database connection"
