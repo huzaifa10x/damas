@@ -1,0 +1,59 @@
+# Local environment for damasmc.com
+#   1. Put your database dump in docker/db/  (any name ending in .sql or .sql.gz)
+#   2. docker compose -f docker-compose.local.yml up -d --build
+#   3. docker compose -f docker-compose.local.yml exec app bash docker/setup.sh
+#   Site:        http://localhost:8080/en
+#   Admin panel: http://localhost:8080/web-admin
+#   phpMyAdmin:  http://localhost:8082   (server: db, user: damas, password: damas)
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - composer-cache:/root/.composer/cache
+    environment:
+      DB_HOST: db
+      DB_NAME: damas
+      DB_USER: damas
+      DB_PASSWORD: damas
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    # cPanel-style lenient SQL mode: the app inserts '' into numeric columns in places
+    command: --sql-mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-allowed-packet=256M
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: damas
+      MYSQL_USER: damas
+      MYSQL_PASSWORD: damas
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./docker/db:/docker-entrypoint-initdb.d:ro   # imported automatically on the FIRST start only
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    ports:
+      - "8082:80"
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 512M
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+  composer-cache:

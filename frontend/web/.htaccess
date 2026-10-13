@@ -13,6 +13,14 @@
   RewriteCond %{QUERY_STRING} _escaped_fragment_
   RewriteRule ^(.*)$ /$1? [R=301,L]
 
+  # Never serve logs, ini files or source maps from the web root
+  RewriteRule (^|/)(error_log|\.user\.ini|php\.ini|.*\.map)$ - [F,L,NC]
+
+  # A missing image/CSS/JS/font is a plain Apache 404 — it must NOT boot Yii.
+  # (Before this, each missing static file ran index.php, the layout's DB queries and a full HTML error page.)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule \.(css|js|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|eot|mp4|webm)$ - [R=404,L,NC]
+
   # Yii Framework: Forward non-existent files/directories to index.php
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

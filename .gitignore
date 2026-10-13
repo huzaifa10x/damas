@@ -42,3 +42,10 @@ phpunit.phar
 /backend/web/index-test.php
 /backend/web/robots.txt
 composer.lock
+# Local environment
+/docker/db/*.sql
+/docker/db/*.sql.gz
+/frontend/runtime/
+/backend/runtime/
+/console/runtime/
+error_log

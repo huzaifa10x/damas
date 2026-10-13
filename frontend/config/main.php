@@ -26,13 +26,7 @@ return [
             'name' => 'advanced-frontend',
         ],
 
-        // Required by the layout's getOrSet() calls.
-        // Swap to yii\redis\Cache if Redis is available (composer require yiisoft/yii2-redis).
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
-            'cachePath' => '@runtime/cache',
-            'keyPrefix' => 'fe_',
-        ],
+        // 'cache' is defined once in common/config/main.php (shared with the backend for invalidation).
 
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

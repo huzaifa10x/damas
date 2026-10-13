@@ -78,22 +78,56 @@ class About extends \yii\db\ActiveRecord {
         return true;
     }
 
+    /** @var array|null label => [type, value, value_arabic], loaded once per request */
+    private static $_dictionary;
+
+    /**
+     * Same result as before, but served from one cached read of the whole table
+     * instead of one SELECT per call (≈12 per homepage). Cache is cleared on any admin save.
+     */
     public static function getValue($param,$language) {
-        $data = About::find()->where(['label' => $param])->one();
-        $value = '';
-        if (!empty($data)) {
-            if ($data->type == 2 || $data->type == 6) {
-                $value = Yii::$app->homeUrl . 'uploads/about/' . $data->value;
-            }elseif ($data->type == 5 || $data->type == 7) {
-                $value = $data->value;
-            }  else {
-                $value = $data->value;
-                if($language == 'ar' && $data->value_arabic != ''){
-                    $value = $data->value_arabic;
-                }
-            }
+        $dict = self::dictionary();
+        $param = self::key($param);
+        if (!isset($dict[$param])) {
+            return '';
         }
-        return $value;
+        list($type, $raw, $rawArabic) = $dict[$param];
+        if ($type == 2 || $type == 6) {
+            return Yii::$app->homeUrl . 'uploads/about/' . $raw; // homeUrl resolved per app (frontend vs /web-admin/)
+        }
+        if ($type == 5 || $type == 7) {
+            return $raw;
+        }
+        if ($language == 'ar' && $rawArabic != '') {
+            return $rawArabic;
+        }
+        return $raw;
+    }
+
+    /** MySQL matched labels case- and trailing-space-insensitively; keep that behaviour. */
+    private static function key($label) {
+        return strtolower(rtrim((string) $label));
+    }
+
+    public static function dictionary() {
+        if (self::$_dictionary === null) {
+            self::$_dictionary = Yii::$app->cache->getOrSet('about_dictionary_v2', function () {
+                $map = [];
+                $rows = (new \yii\db\Query())
+                    ->select(['label', 'type', 'value', 'value_arabic'])
+                    ->from(self::tableName())
+                    ->orderBy(['id' => SORT_ASC])
+                    ->all(self::getDb());
+                foreach ($rows as $row) {
+                    $k = self::key($row['label']);
+                    if ($row['label'] !== null && !isset($map[$k])) { // first row wins, like ->one() did
+                        $map[$k] = [$row['type'], $row['value'], $row['value_arabic']];
+                    }
+                }
+                return $map;
+            }, \common\components\ContentCache::DURATION, \common\components\ContentCache::dependency());
+        }
+        return self::$_dictionary;
     }
 
 }

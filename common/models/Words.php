@@ -58,15 +58,48 @@ class Words extends \yii\db\ActiveRecord
         ];
     }
     
+    /** @var array|null label => [word_english, word_arabic], loaded once per request */
+    private static $_dictionary;
+
+    /**
+     * Translated UI label.
+     *
+     * Previously this ran one SELECT per call — about 70 queries on the homepage alone (layout + view).
+     * Now the whole table is read once, cached until the admin edits any content, and served from memory.
+     * Behaviour is unchanged: same lookup by label (first row wins), English fallback rules as before.
+     */
     public static function getValue($language, $param) {
-        $data = Words::find()->where(['label' => $param])->one();
-        $value = '';
-        if (!empty($data)) {
-            $value = $data->word_english;
-                if ($language == 'ar') {
-                    $value = $data->word_arabic;
-                }
+        $dict = self::dictionary();
+        $param = self::key($param);
+        if (!isset($dict[$param])) {
+            return '';
         }
-        return $value;
+        return $language == 'ar' ? $dict[$param][1] : $dict[$param][0];
+    }
+
+    /** MySQL matched labels case- and trailing-space-insensitively; keep that behaviour. */
+    private static function key($label) {
+        return strtolower(rtrim((string) $label));
+    }
+
+    public static function dictionary() {
+        if (self::$_dictionary === null) {
+            self::$_dictionary = Yii::$app->cache->getOrSet('words_dictionary_v2', function () {
+                $map = [];
+                $rows = (new \yii\db\Query())
+                    ->select(['label', 'word_english', 'word_arabic'])
+                    ->from(self::tableName())
+                    ->orderBy(['id' => SORT_ASC])
+                    ->all(self::getDb());
+                foreach ($rows as $row) {
+                    $k = self::key($row['label']);
+                    if ($row['label'] !== null && !isset($map[$k])) { // first row wins, like ->one() did
+                        $map[$k] = [$row['word_english'], $row['word_arabic']];
+                    }
+                }
+                return $map;
+            }, \common\components\ContentCache::DURATION, \common\components\ContentCache::dependency());
+        }
+        return self::$_dictionary;
     }
 }

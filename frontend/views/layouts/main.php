@@ -28,13 +28,11 @@ $homeUrl    = Yii::$app->homeUrl;
 
 /*
  * ---------------------------------------------------------------------------
- * LAYOUT DATA — cached for 1 hour.
- * Previously: 1 departments query + 2 services queries PER department + genders
- * + departments again + contact, on EVERY request. Now: 4 queries, once per hour.
- * Clear with Yii::$app->cache->delete('layout_data_v1') from the admin afterSave().
+ * LAYOUT DATA — cached until the admin changes any content (ContentCache tag,
+ * invalidated from backend/config/bootstrap.php), 24h at most.
  * ---------------------------------------------------------------------------
  */
-$layout = Yii::$app->cache->getOrSet('layout_data_v1', function () {
+$layout = Yii::$app->cache->getOrSet('layout_data_v2', function () {
     $sortExpr = new \yii\db\Expression('-sort_order DESC, sort_order ASC');
 
     $departments = Departments::find()->where(['status' => 1])->orderBy([$sortExpr])->all();
@@ -51,7 +49,7 @@ $layout = Yii::$app->cache->getOrSet('layout_data_v1', function () {
         'genders'        => Genders::find()->where(['status' => 1])->all(),
         'contact'        => ContactUs::findOne(1),
     ];
-}, 3600);
+}, \common\components\ContentCache::DURATION, \common\components\ContentCache::dependency());
 
 $departments    = $layout['departments'];
 $servicesByDept = $layout['servicesByDept'];
@@ -64,6 +62,27 @@ $successMessage = $session->getFlash('success');
 $errorMessage   = $session->getFlash('error');
 
 $canonical = 'https://damasmc.com' . strtok(Yii::$app->request->url, '?');
+
+/*
+ * Page views print their own <script> tags inside $content, i.e. BEFORE jQuery (which is at the end of <body>).
+ * Synchronous jQuery plugins / inline $(...) code there would throw "$ is not defined" and break the page's
+ * sliders, selects and forms. Move every script block out of $content and print it after jQuery + libraries,
+ * keeping the original order. JSON-LD blocks stay where they are.
+ * Views whose scripts are all `defer` / DOMContentLoaded-safe set $this->params['scriptsDeferSafe'] = true
+ * (the homepage does) so the shared libraries can stay deferred there.
+ */
+$viewScripts = '';
+$movedContent = preg_replace_callback(
+    '#<script\b(?![^>]*application/ld\+json)[^>]*>.*?</script>#is',
+    function ($m) use (&$viewScripts) { $viewScripts .= $m[0] . "\n"; return ''; },
+    $content
+);
+if ($movedContent === null) { // PCRE limit hit on a huge page: leave the page exactly as it was
+    $viewScripts = '';
+} else {
+    $content = $movedContent;
+}
+$libsAttr = ($viewScripts === '' || !empty($this->params['scriptsDeferSafe'])) ? ' defer' : '';
 $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $contact_data->whatsapp_no) . '&text=Help%20Me%20%3F';
 ?>
 <?php $this->beginPage() ?>
@@ -75,10 +94,9 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
 
-    <!-- Origins we will actually hit early (Google Fonts removed: nothing loads them, the preconnects were wasted) -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preload" href="<?= $homeUrl ?>images/logo.svg" as="image">
+    <!-- All libraries are self-hosted in web/lib (same HTTP/2 connection as the page, no extra DNS+TLS
+         round-trips to cdnjs/jsdelivr). The logo is NOT preloaded: it is in the HTML anyway, and a
+         high-priority preload made it compete with the hero image, which is the actual LCP element. -->
 
     <!-- Google Tag Manager (async, keep first so tags fire early) -->
     <!--<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WHGCVTW');</script>-->
@@ -87,24 +105,18 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
     <!--<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-E74FZLYF77');</script>-->
 
     <!-- CRITICAL CSS: render-blocking on purpose, ONE copy each -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="<?= $homeUrl ?>lib/bootstrap-5.3.2.min.css">
     <!-- app.min.css is loaded HERE ONLY. Remove 'css/app.min.css' from AppAsset::$css or it is downloaded twice (it was). -->
     <link rel="stylesheet" href="<?= $homeUrl ?>css/app.min.css?v=<?= @filemtime(Yii::getAlias('@webroot/css/app.min.css')) ?: 1 ?>" id="AppStyle">
     <link rel="stylesheet" href="<?= $homeUrl ?>css/style.css?v=<?= @filemtime(Yii::getAlias('@webroot/css/style.css')) ?: 1 ?>">
-    <!-- css/site.css removed: the server returns HTTP 500 for it (see Lighthouse console errors) -->
 
     <!-- Self-hosted body font: preload the regular weight so text does not wait for the 626 KB CSS to discover it -->
     <link rel="preload" href="<?= $homeUrl ?>fonts/Salzburg-Serial-Regular.woff2" as="font" type="font/woff2" crossorigin>
 
     <!-- NON-CRITICAL CSS (modal/select/datepicker/animations): loads without blocking first paint -->
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/themes/dark.min.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- select2 + flatpickr (+dark theme) + toastr + animate.css in ONE file (bootstrap-select and AOS removed: nothing on the site uses them) -->
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="<?= $homeUrl ?>lib/vendor-async.css?v=1">
+    <noscript><link rel="stylesheet" href="<?= $homeUrl ?>lib/vendor-async.css?v=1"></noscript>
 
     <!-- jQuery is loaded at the END of <body> (still synchronous, so Yii's registerJs() output works) — no longer render-blocking in <head> -->
 
@@ -169,7 +181,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
 
                 <div class="lftSec">
                     <a href="<?= Url::to(['site/index', 'language' => $language]) ?>" class="LogoSec" aria-label="logo">
-                        <img src="<?= $homeUrl ?>images/logo.svg" alt="Damas Logo" width="160" height="60" fetchpriority="high">
+                        <img src="<?= $homeUrl ?>images/logo.svg" alt="Damas Logo" width="160" height="60">
                     </a>
                 </div>
 
@@ -547,9 +559,11 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                                 <div class="item">
                                                     <a href="<?= $contact_data->location_link ?>" class="cmnBtn white locatn" target="_blank" rel="noopener">
                                                         <!-- Map iframe replaced by a static thumbnail: the embed cost ~1MB + 3 long tasks on every page. Put a 260x160 screenshot at images/map-thumb.jpg -->
+                                                        <?php if (is_file(Yii::getAlias('@webroot/images/map-thumb.jpg'))): /* file did not exist → every page view made a 404 that booted Yii */ ?>
                                                         <div class="locatnBx">
                                                             <img src="<?= $homeUrl ?>images/map-thumb.jpg" alt="Map" width="260" height="160" loading="lazy">
                                                         </div>
+                                                        <?php endif; ?>
                                                         <span><?= Words::getValue($language, 'our_location_map') ?></span>
                                                         <div class="icon">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="13.693" height="16.736" viewBox="0 0 13.693 16.736"><path d="M14.2,2.558A6.844,6.844,0,1,0,5.68,13.273a11.6,11.6,0,0,1,2.983,3.208l.533.886a.761.761,0,0,0,1.3,0l.51-.851a9.677,9.677,0,0,1,2.722-3.043A6.839,6.839,0,0,0,14.2,2.555Zm-4.35,8.331A3.043,3.043,0,1,1,12.89,7.846,3.043,3.043,0,0,1,9.847,10.889Z" transform="translate(-3.001 -0.999)" fill="#763813"/></svg>
@@ -663,12 +677,14 @@ window.loadRecaptcha = function () {
 
 /* All site init runs after the deferred libraries above have executed. */
 document.addEventListener('DOMContentLoaded', function () {
+    /* Pages can be served from the page cache, so write the visitor's real URL (with utm/gclid) into the booking forms here */
+    document.querySelectorAll('input[name$="[page_url]"]').forEach(function (el) { el.value = window.location.href; });
+
     var homeUrl   = <?= Json::encode($homeUrl) ?>;
     var language  = <?= Json::encode($language) ?>;
     var actionUrl = <?= Json::encode($action_url) ?>;
 
     if (window.LazyLoad) { new LazyLoad({}); }
-    if (window.AOS) { AOS.init({ duration: 600 }); }
 
     if ($.fn.select2) {
         $("select:not(.selectpicker)").select2({
@@ -817,27 +833,14 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=976174241061653&ev=PageView&noscript=1" alt=""></noscript>
 <!-- jQuery: the ONE synchronous script. It must sit BEFORE $this->endBody() because Yii's registerJs()/ActiveForm
-     output (jQuery(function($){...})) is printed there. Being at the end of <body> it no longer blocks first paint.
-     Deferred scripts (below and in page views) always execute AFTER this, in document order. Disable Yii's own copy:
-     'assetManager' => ['bundles' => ['yii\web\JqueryAsset' => ['js' => []]]] -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
-            integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- Everything else deferred; order is preserved, all execute before DOMContentLoaded -->
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-    <!-- select2 FULL build: the *CssClass options used below only exist in the full build (the slim one threw "No select2/compat/dropdownCss") -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
-            integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ScrollTrigger/1.0.6/ScrollTrigger.min.js"
-            integrity="sha512-+LXqbM6YLduaaxq6kNcjMsQgZQUTdZp7FTaArWYFt1nxyFKlQSMdIF/WQ/VgsReERwRD8w/9H9cahFx25UDd+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script defer src="<?= $homeUrl ?>js/app.min.js"></script>
+     output (jQuery(function($){...})) is printed there. At the end of <body> it does not block first paint.
+     Deferred scripts below execute after it, in document order, before DOMContentLoaded. -->
+    <script src="<?= $homeUrl ?>lib/jquery-3.7.0.min.js"></script>
+<!-- bootstrap.bundle + select2.full + flatpickr + toastr + vanilla-lazyload, one deferred file.
+     Removed: bootstrap-select, AOS, GSAP, ScrollTrigger (≈110 KB of JS that no page uses). -->
+    <script<?= $libsAttr ?> src="<?= $homeUrl ?>lib/vendor.min.js?v=1"></script>
+    <script<?= $libsAttr ?> src="<?= $homeUrl ?>js/app.min.js"></script>
+<?= $viewScripts ?>
 <?php $this->endBody() ?>
 </body>
 </html>

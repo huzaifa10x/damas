@@ -381,7 +381,7 @@ use common\models\Words;
     if (!empty($our_doctors)) {
         ?>
         <section id="doctors">
-        <img src="<?= Yii::$app->homeUrl ?>images/doctorsBg.jpg" class="bannerBg lazy" data-src=" <?= Yii::$app->homeUrl ?>images/doctorsBg.jpg"
+        <img src="<?= Yii::$app->homeUrl ?>images/doctorsBg.webp" class="bannerBg lazy" data-src=" <?= Yii::$app->homeUrl ?>images/doctorsBg.webp"
              loading="lazy" width="1920" height="685" alt="Doctor Background Image">
 
         <div class="container">

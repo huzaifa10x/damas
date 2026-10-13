@@ -21,10 +21,9 @@ $isAr       = ($language === 'ar');
  *   before the CSS is parsed.
  * ---------------------------------------------------------------------------
  */
-$this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css', [
-    'integrity' => 'sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g==',
-    'crossorigin' => 'anonymous',
-]);
+$this->registerCssFile($homeUrl . 'lib/owl.carousel-2.3.4.min.css'); // self-hosted (was cdnjs: extra DNS+TLS before first paint)
+/* Every script in this view is `defer` or waits for DOMContentLoaded/load, so the layout may keep its libraries deferred. */
+$this->params['scriptsDeferSafe'] = true;
 /* Jarallax removed: it forced layout on every scroll tick (Lighthouse: 20 long tasks on desktop). The same effect is done in CSS below. */
 /* Hero video overlays the <picture> (which defines the box). Without this the deferred src attach resized the video
    after first paint and shifted the whole page — desktop CLS 1.8. */
@@ -485,22 +484,12 @@ $bookImage     = $isAr ? About::getValue('book_an_appointment_image_arabic', $la
 
 </div>
 
-<!-- Fancybox CSS: only needed after a click, so it must not block rendering -->
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.6/jquery.fancybox.min.css">
 
 <!--
-  PAGE SCRIPTS — all `defer`. They execute in document order, AFTER the synchronous jQuery at the end of the layout
-  and BEFORE DOMContentLoaded, so the init block below can safely use every library.
-  Removed vs. before: GSAP 3.5.1 (layout already ships 3.12.2), ScrollMagic (replaced by IntersectionObserver),
-  Jarallax (replaced by a 15-line rAF parallax), reCAPTCHA in <head> (now on-demand). No more protocol-relative "//" URLs.
+  PAGE SCRIPTS — Owl Carousel + WOW + touchSwipe, self-hosted as ONE deferred file (was 3 cdnjs requests).
+  Fancybox (90 KB, only needed when a testimonial is clicked) is loaded after window.load, see bottom.
 -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
-        integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"
-        integrity="sha512-Eak/29OTpb36LLo2r47IpVzPBLXnAMPAVypbSZiZ4Qkf8p/7S/XRG5xp7OKWPPYfJT6metI+IORkR5G8F900+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.19/jquery.touchSwipe.min.js"
-        integrity="sha512-YYiD5ZhmJ0GCdJvx6Xe6HzHqHvMpJEPomXwPbsgcpMFPW+mQEeVBU6l9n+2Y+naq+CLbujk91vHyN18q6/RSYw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.6/jquery.fancybox.min.js"></script>
+<script defer src="<?= $homeUrl ?>lib/home.min.js?v=1"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -642,6 +631,12 @@ function attachVideo(v) {
     if (p && p.catch) { p.catch(function () {}); }
 }
 window.addEventListener('load', function () {
+    /* Fancybox: only used on click (testimonial videos), so fetch it once the page has finished loading. */
+    var fbCss = document.createElement('link'); fbCss.rel = 'stylesheet'; fbCss.href = <?= json_encode($homeUrl . 'lib/jquery.fancybox-3.5.6.min.css') ?>;
+    document.head.appendChild(fbCss);
+    var fbJs = document.createElement('script'); fbJs.src = <?= json_encode($homeUrl . 'lib/jquery.fancybox-3.5.6.min.js') ?>; fbJs.async = true;
+    document.body.appendChild(fbJs);
+
     document.querySelectorAll('video.hero-video[data-src]').forEach(attachVideo);
 
     var lazyVideos = document.querySelectorAll('video[data-src]:not(.hero-video)');

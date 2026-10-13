@@ -36,6 +36,29 @@ class SiteController extends Controller {
      */
     public function behaviors() {
         return [
+            /*
+             * Full-page cache for the public content pages. A cache hit skips the controller, the layout
+             * and every DB query, so TTFB drops to PHP-boot time only. Safe because:
+             *  - only GET requests are cached (form posts and the offer/doctor filters are POST);
+             *  - a visitor with a pending flash message (form error/success) always gets a fresh render;
+             *  - CSRF validation is disabled in this controller, so a cached token in the HTML is harmless;
+             *  - only HTTP 200 responses are stored (a DB hiccup never gets cached as the page);
+             *  - any admin save invalidates everything via ContentCache (backend/config/bootstrap.php).
+             * Each distinct URL (language, slug, query string) is its own cache entry.
+             */
+            'pageCache' => [
+                'class' => \common\components\SafePageCache::class, // only caches HTTP 200 responses
+                'only' => [
+                    'index', 'about', 'departments', 'department-details', 'service-details', 'subservice-details',
+                    'our-doctors', 'doctor-details', 'offers', 'insurance', 'testimonials', 'gallery', 'faq',
+                    'blogs', 'blog-details', 'privacy-policy', 'terms-and-conditions', 'careers', 'media-library',
+                    // NOT 'landing-page': layouts/landing.php prints the per-visitor session['logerror'] booking flag
+                ],
+                'duration' => \common\components\ContentCache::DURATION,
+                'dependency' => \common\components\ContentCache::dependency(),
+                'variations' => [Yii::$app->request->hostInfo, self::pageCacheKey()],
+                'enabled' => self::isPageCacheable(),
+            ],
             'access' => [
                 'class' => AccessControl::class,
                 'only' => ['logout', 'signup'],
@@ -59,6 +82,46 @@ class SiteController extends Controller {
                 ],
             ],
         ];
+    }
+
+    /**
+     * GET only, and never while this visitor has a flash message waiting to be shown.
+     * The session is only opened when the visitor already has a session cookie,
+     * so first-time visitors (the Lighthouse case) never create a session at all on a cache hit.
+     */
+    private static function isPageCacheable() {
+        $request = Yii::$app->request;
+        if (!$request->isGet || YII_DEBUG) {
+            return false;
+        }
+        // '<language>' => 'site/index' matches ANY one-segment URL (/xyz); only cache the real languages
+        if (!in_array($request->getQueryParam('language', 'en'), ['en', 'ar'], true)) {
+            return false;
+        }
+        $session = Yii::$app->session;
+        if (isset($_COOKIE[$session->name])) { // raw PHP session cookie (not a Yii-validated cookie)
+            if (!empty($session->getAllFlashes())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Cache key = path + query string WITHOUT ad-tracking parameters, so every ?gclid=/fbclid=/utm_ click
+     * shares the same cached page instead of creating a new cache file. (The booking forms' page_url field
+     * is filled with the real URL in the browser — see layouts/main.php — so attribution is not lost.)
+     */
+    private static function pageCacheKey() {
+        $request = Yii::$app->request;
+        $params = $request->get();
+        foreach (array_keys($params) as $k) {
+            if (preg_match('/^(utm_|fbclid$|gclid$|gbraid$|wbraid$|gad_|msclkid$|ttclid$|twclid$|li_fat_id$|_gl$|srsltid$|mc_|igshid$|sc_|ScCid$)/i', $k)) {
+                unset($params[$k]);
+            }
+        }
+        ksort($params);
+        return $request->pathInfo . '?' . http_build_query($params);
     }
 
     /**
