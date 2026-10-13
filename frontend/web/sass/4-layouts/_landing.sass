@@ -1,0 +1,774 @@
+.landingPage
+    #MainBanner
+        position: relative
+        z-index: 0
+        .carousel-inner
+            .carousel-item
+                width: 100%
+                height: 50vh
+                position: relative
+                display: flex
+                align-items: center
+                @media only screen and (min-width: 992px)
+                    height: calc(100vh - 96px)
+                @media only screen and (min-width: 1351px)
+                    height: calc(100vh - 105px)
+                @media only screen and (min-width: 1441px)
+                    height: calc(100vh - 123px)
+                &.active
+                    .bannerCaption
+                        .mainTitle, .SubInfo, .btnSec
+                            opacity: 1
+                            visibility: visible
+                            transform: translateY(0)
+
+                &::after
+                    content: ""
+                    position: absolute
+                    bottom: 0
+                    left: 0
+                    height: 100%
+                    width: 100%
+                    opacity: 0.8
+                    background: linear-gradient(90deg, rgba(60,36,21,1) 0%, rgba(60,36,21,0) 100%)
+
+                .imBox
+                    width: 100%
+                    height: 100%
+                    position: absolute
+                    z-index: 0
+                    img, video
+                        transition: all 0.5s
+                        @include imgFit
+                .container
+                    position: relative
+                    padding: 0 15px
+
+                .bannerCaption
+                    position: relative
+                    z-index: 1
+                    width: 100%
+                    @media only screen and (min-width: 578px)
+                        max-width: 500px
+                    @media only screen and (min-width: 992px)
+                        max-width: 800px
+                    @media only screen and (min-width: 1441px)
+                        padding: 0
+                    .mainTitle
+                        font-weight: 400
+                        color: #FFFFFF
+                        margin-bottom: 15px
+                        font-size: 28px
+                        transition: all 0.5s
+                        letter-spacing: 0.5px
+                        line-height: 38px
+                        opacity: 0
+                        visibility: hidden
+                        transform: translateY(30px)
+                        @media only screen and (min-width: 468px)
+                            font-size: 32px
+                            line-height: 32px
+                        @media only screen and (min-width: 576px)
+                            font-size: 38px
+                            margin-bottom: 20px
+                            line-height: 48px
+                        @media only screen and (min-width: 768px)
+                            font-size: 40px
+                            line-height: 50px
+                        @media only screen and (min-width: 992px)
+                            font-size: 45px
+                            line-height: 55px
+                            margin-bottom: 30px
+                        @media only screen and (min-width: 1351px)
+                            font-size: 50px
+                            line-height: 60px
+                        @media only screen and (min-width: 1441px)
+                            font-size: 60px
+                            line-height: 70px
+                            margin-bottom: 40px
+
+                    .SubInfo
+                        font-size: 18px
+                        line-height: 23px
+                        font-weight: 300
+                        color: $white
+                        margin-bottom: 15px
+                        letter-spacing: 0.5px
+                        opacity: 0
+                        visibility: hidden
+                        transform: translateY(50px)
+                        transition-delay: 0.5s
+                        transition: all 0.5s
+                        @media only screen and (min-width: 768px)
+                            font-size: 22px
+                            line-height: 27px
+                        @media only screen and (min-width: 992px)
+                            font-size: 26px
+                            line-height: 33px
+                            margin-bottom: 25px
+                        @media only screen and (min-width: 1351px)
+                            font-size: 32px
+                            line-height: 37px
+                        @media only screen and (min-width: 1441px)
+                            font-size: 38px
+                            line-height: 45px
+                            margin-bottom: 45px
+                    .btnSec
+                        opacity: 0
+                        visibility: hidden
+                        transform: translateY(0px)
+                        transition-delay: 0.5s
+                        transition: all 0.5s
+    #welcome
+        position: relative
+        padding: 20px 0
+        z-index: 0
+        @media only screen and (min-width:1200px)
+            padding: 30px 0
+        @media only screen and (min-width:1441px)
+            padding: 120px 0 70px
+
+        .floaticon
+            position: absolute
+            top: 20%
+            bottom: 0
+            left: 30px
+            width: 100%
+            height: fit-content
+            opacity: 0.08
+            pointer-events: none
+            z-index: 1
+            margin: auto
+            animation: rotate 5s linear infinite
+            max-width: 140px
+            @media only screen and (min-width:1200px)
+                max-width: 180px
+            @media only screen and (min-width:1441px)
+                max-width: 260px
+            img
+                width: auto
+            &.rtSide
+                top: 20px
+                right: 20px
+                left: unset
+
+        .row
+            margin: -5px
+            @media only screen and (min-width:1200px)
+                margin: -8px
+            >*
+                padding: 5px
+                @media only screen and (min-width:1200px)
+                    padding: 8px
+        .mainTitle
+            margin-top: 15px
+            @media only screen and (min-width:1200px)
+                margin-top: 20px
+            .title
+                color: #000000
+                font-weight: 500
+                font-size: 17px
+                span
+                    color: #763813
+        .titleHead
+            color: #000000
+            max-width: 845px
+            font-size: 22px
+            @media only screen and (min-width:768px)
+                font-size: 26px
+            @media only screen and (min-width:992px)
+                font-size: 28px
+            @media only screen and (min-width:1200px)
+                margin-left: 40px
+                font-size: 32px
+            @media only screen and (min-width:1351px)
+                font-size: 32px
+            @media only screen and (min-width:1441px)
+                margin-left: 60px
+                font-size: 38px
+            span
+                color: #763813
+        .imGbox
+            width: 100%
+            height: 100%
+            overflow: hidden
+            @media only screen and (max-width:768px)
+                height: 350px
+            @media only screen and (min-width:992px)
+                max-width: 390px
+            &:hover
+                img
+                    transform: scale(1.1)
+            &.small
+                @media only screen and (min-width:992px)
+                    max-height: 300px
+                    max-width: 295px
+                    margin-left: auto
+                @media only screen and (min-width:1200px)
+                    max-height: 385px
+            img
+                transition: all 0.5s
+                @include imgFit
+                @media only screen and (max-width:992px)
+                    object-position: bottom
+
+        .cRow
+            margin: -8px
+            margin-top: 20px
+            @media only screen and (min-width:1200px)
+                margin-top: 40px
+            @media only screen and (min-width:1441px)
+                margin: -15px
+                margin-top: 60px
+            >*
+                padding: 8px
+                @media only screen and (min-width:1441px)
+                    padding: 15px
+
+            p
+                color: $text
+                font-size: 14px
+                font-weight: 300
+                line-height: 24px
+                margin-bottom: 15px
+                @media only screen and (min-width:768px)
+                    font-size: 16px
+                    line-height: 26px
+                &:last-of-type
+                    margin-bottom: 0
+            .mdSec
+                display: flex
+                align-items: center
+                @media only screen and (max-width:992px)
+                    order: 1
+                .contentBx
+                    @media only screen and (min-width:992px)
+                        overflow-y: auto
+                        padding-right: 10px
+                        height: 450px
+                        max-width: 520px
+                    @media only screen and (min-width:1200px)
+                        padding-right: 20px
+                        padding-left: 40px
+
+            .rightbX
+                display: flex
+                align-items: flex-end
+
+    #cosmetic
+        position: relative
+        padding: 20px 0
+        z-index: 0
+        @media only screen and (min-width:1200px)
+            padding: 30px 0
+        @media only screen and (min-width:1441px)
+            padding: 70px 0
+        &::after
+            display: block
+            clear: both
+            content: ""
+        .rflX
+            width: 100%
+            >*
+                padding: 8px
+            .lftSec
+                .mainTitle
+                    font-weight: 500
+                    color: #000000
+                    margin-bottom: 22px
+                    max-width: 460px
+                    font-size: 24px
+                    @media only screen and (min-width:768px)
+                        font-size: 26px
+                    @media only screen and (min-width:992px)
+                        font-size: 28px
+                    @media only screen and (min-width:1200px)
+                        font-size: 30px
+                    @media only screen and (min-width:1441px)
+                        font-size: 34px
+                p
+                    color: $text
+                    font-size: 14px
+                    font-weight: 300
+                    line-height: 24px
+                    margin-bottom: 15px
+                    @media only screen and (min-width:768px)
+                        font-size: 16px
+                        line-height: 26px
+                        margin-bottom: 30px
+
+                .mainTxt
+                    color: #000000
+                    font-weight: 500
+                    margin-bottom: 25px
+                    font-size: 16px
+                    line-height: 23px
+                    @media only screen and (min-width:1200px)
+                        margin-bottom: 30px
+                        font-size: 18px
+                        line-height: 25px
+
+                ul
+                    li
+                        color: $text
+                        font-size: 14px
+                        font-weight: 300
+                        line-height: 24px
+                        margin-bottom: 15px
+                        position: relative
+                        padding-left: 30px
+                        @media only screen and (min-width:768px)
+                            font-size: 15px
+                            line-height: 26px
+                        span
+                            font-weight: 500
+                        &::before
+                            position: absolute
+                            content: ''
+                            top: 5px
+                            left: 0
+                            width: 18px
+                            height: 18px
+                            background: url('../images/tick.svg') no-repeat
+                            background-size: 18px
+
+            .rtSec
+                position: relative
+                @media only screen and (min-width:992px)
+                    float: right
+                    width: calc(50% + 50px)
+                @media only screen and (min-width:1351px)
+                    width: calc(50% + 100px)
+
+                .imgBox
+                    width: 100%
+                    height: 350px
+                    overflow: hidden
+                    @media only screen and (min-width:768px)
+                        height: 450px
+                    @media only screen and (min-width:992px)
+                        height: 100%
+                        margin-left: auto
+                        max-height: 650px
+                        max-width: 510px
+                    @media only screen and (min-width:1200px)
+                        max-width: 550px
+                    @media only screen and (min-width:1351px)
+                        max-width: 620px
+                    img
+                        transition: all 0.5s
+                        @include imgFit
+    #dental
+        position: relative
+        padding: 50px 0
+        min-height: 400px
+        z-index: 0
+        @include center
+        @media only screen and (min-width:992px)
+            min-height: 500px
+        @media only screen and (min-width:1441px)
+            min-height: 650px
+        @media only screen and (min-width:1551px)
+            min-height: 850px
+        &::after
+            position: absolute
+            content: ''
+            top: 0
+            left: 0
+            width: 100%
+            height: 100%
+            background: rgba(0,0,0,0.36)
+        .container
+            position: relative
+            z-index: 1
+            .mainheading
+                text-align: center
+                .title
+                    color: $white
+                    font-weight: 300
+                    margin-bottom: 15px
+                    font-size: 30px
+                    @media only screen and (min-width:768px)
+                        font-size: 40px
+                    @media only screen and (min-width:1351px)
+                        font-size: 45px
+                    @media only screen and (min-width:1441px)
+                        font-size: 54px
+                .subT
+                    font-weight: 200
+                    color: $white
+                    font-size: 18px
+                    line-height: 24px
+                    @media only screen and (min-width:1200px)
+                        font-size: 20px
+                        line-height: 26px
+                    @media only screen and (min-width:1351px)
+                        font-size: 22px
+                        line-height: 28px
+                    @media only screen and (min-width:1441px)
+                        font-size: 25px
+                        line-height: 30px
+    #gallery
+        position: relative
+        padding: 40px 0
+        z-index: 0
+        @media only screen and (min-width:1200px)
+            padding: 60px 0
+        @media only screen and (min-width:1441px)
+            padding: 100px 0
+
+        .flxBox
+            display: flex
+            align-items: center
+            justify-content: space-between
+            margin: -5px
+            margin-bottom: 20px
+            flex-wrap: wrap
+            @media only screen and (min-width:1200px)
+                margin-bottom: 40px
+            >*
+                padding: 5px
+
+        .coparisonBx
+            max-width: 100%
+            height: 400px
+            .comparison
+                width: 100%
+                height: 100%
+                overflow: hidden
+                position: relative
+                figure
+                    position: absolute
+                    font-size: 0
+                    width: 100%
+                    height: 100%
+                    margin: 0
+                    .imgBx
+                        width: 100%
+                        height: 100%
+
+                        img
+                            width: 100%
+                            height: 100%
+                            object-fit: cover
+                .divisor
+                    background-size: cover
+                    position: absolute
+                    width: 50%
+                    bottom: 0
+                    height: 100%
+
+                .handle
+                    position: absolute
+                    height: 100%
+                    width: 1px
+                    top: 50%
+                    left: 50%
+                    border-radius: 10px
+                    transform: translateY(-50%) translateX(-50%)
+                    z-index: 1
+                    color: #fff
+                    background: #fff
+                    border: 1px solid #fff
+
+                input[type=range]
+                    -webkit-appearance: none
+                    -moz-appearance: none
+                    position: absolute
+                    left: -25px
+                    background-color: transparent
+                    width: calc(100% + 50px)
+                    z-index: 2
+                    top: 0
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    bottom: 0
+                    opacity: 0
+                    cursor: pointer
+                    &:focus, &:active
+                        border: none
+                        outline: none
+                    &::-webkit-slider-thumb
+                        -webkit-appearance: none
+                        border: none
+                        height: 50px
+                        width: 50px
+                        border-radius: 50%
+                        background: transparent
+                        border: 4px solid white
+                        box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.3)
+                    &::-moz-range-track
+                        -moz-appearance: none
+                        height: 15px
+                        width: 100%
+                        background-color: transparent
+                        position: relative
+                        outline: none
+
+    #videoSec
+        position: relative
+        padding: 40px 0
+        background: #FCF9F3
+        z-index: 0
+        @media only screen and (min-width:1200px)
+            padding: 60px 0
+        @media only screen and (min-width:1441px)
+            padding: 80px 0 100px
+        .sideTxt
+            position: absolute
+            top: 0
+            bottom: 0
+            right: 0
+            height: fit-content
+            width: fit-content
+            font-weight: 500
+            color: rgba(118, 56, 19,0.1)
+            margin: auto
+            writing-mode: vertical-lr
+            line-height: 45px
+            font-size: 55px
+            display: none
+            @media only screen and (min-width:1271px)
+                display: block
+            @media only screen and (min-width:1351px)
+                line-height: 55px
+                font-size: 65px
+            @media only screen and (min-width:1551px)
+                line-height: 80px
+                font-size: 100px
+
+        .flxBox
+            display: flex
+            align-items: center
+            justify-content: space-between
+            margin: -5px
+            margin-bottom: 20px
+            flex-wrap: wrap
+            @media only screen and (min-width:1200px)
+                margin-bottom: 40px
+            >*
+                padding: 5px
+
+    #service
+        position: relative
+        padding: 40px 0
+        z-index: 0
+        @media only screen and (min-width:1200px)
+            padding: 60px 0
+        @media only screen and (min-width:1441px)
+            padding: 120px 0 140px
+
+        .mainHead
+            max-width: 300px
+            .head
+                margin-bottom: 20px
+
+        .flxBox
+            display: flex
+            flex-wrap: wrap
+            margin: -7.5px
+            @media only screen and (min-width:1551px)
+                margin: -12px
+            >*
+                width: 100%
+                padding: 7.5px
+                position: relative
+                @media only screen and (min-width:478px)
+                    width: calc(100% / 2)
+                @media only screen and (min-width:678px)
+                    width: calc(100% / 3)
+                @media only screen and (min-width:1551px)
+                    padding: 12px
+                .logIcon
+                    position: absolute
+                    bottom: 10px
+                    right: 20px
+                    max-width: 175px
+                    animation: rotate 5s linear infinite
+                    @media only screen and (min-width:992px)
+                        bottom: 40px
+                        max-width: 240px
+                        height: 240px
+                    @media only screen and (min-width:1350px)
+                        max-width: 320px
+                        height: 320px
+                    img
+                        transition: all 0.5s
+                        @include imgFit
+                .serviceBox
+                    display: block
+                    width: 100%
+                    height: 100%
+                    overflow: hidden
+                    position: relative
+                    transition: all 0.5s
+                    &:hover
+                        img
+                            transform: scale(1.1)
+                        .info
+                            height: 130px
+                            @media only screen and (min-width:1351px)
+                                height: 160px
+                            .cmnBtn
+                                opacity: 1
+                                visibility: visible
+                                transform: translate(0)
+                    img
+                        transition: all 0.5s
+                        @include imgFit
+                    .info
+                        position: absolute
+                        bottom: 0
+                        left: 0
+                        width: 100%
+                        height: 80px
+                        background: #763813
+                        padding: 20px
+                        transition: all 0.5s
+                        @media only screen and (min-width:1351px)
+                            padding: 25px 20px
+                            height: 100px
+                        @media only screen and (min-width:1441px)
+                            padding: 25px 30px
+                        .name
+                            color: $white
+                            font-weight: 500
+                            margin-bottom: 15px
+                            font-size: 16px
+                            @media only screen and (min-width:768px)
+                                font-size: 18px
+                                margin-bottom: 25px
+                            @media only screen and (min-width:1200px)
+                                font-size: 20px
+                            @media only screen and (min-width:1441px)
+                                margin-bottom: 35px
+                                font-size: 22px
+
+                        .cmnBtn
+                            width: 100%
+                            background: #763813
+                            padding: 0
+                            font-size: 14px
+                            font-weight: 500
+                            color: $white
+                            max-width: 135px
+                            height: fit-content
+                            transform: translateY(10px)
+                            opacity: 0
+                            visibility: hidden
+                            transition: all 0.5s
+                            @media only screen and (min-width:1441px)
+                                font-size: 16px
+                            &::after
+                                border-left: 10px solid #ffffff
+                            &::before
+                                background: $hover
+                            span
+                                color: $white
+
+    
+    #appointment
+        position: relative
+        padding: 40px 0
+        @media only screen and (min-width:1200px)
+            padding: 50px 0
+        @media only screen and (min-width:1441px)
+            padding: 80px 0
+        .appointMentBox
+            background: $white
+            padding: 40px 25px 50px
+            max-width: 515px
+            margin: auto
+            position: relative
+            @media only screen and (min-width:992px)
+                padding: 40px 45px 50px
+                margin: 0
+                margin-left: auto
+            @media only screen and (min-width:1200px)
+                padding: 35px 45px 40px
+            @media only screen and (min-width:1441px)
+                padding: 44px 55px 63px
+            .imgBox
+                position: absolute
+                top: 0
+                right: 0
+                max-width: 175px
+                animation: rotate 5s linear infinite
+            .row
+                margin: -10px
+                >*
+                    padding: 10px
+            .title
+                color: #000000
+                margin-bottom: 15px
+                font-size: 30px
+                line-height: 30px
+                font-weight: 500
+                @media only screen and (min-width:1200px)
+                    font-size: 35px
+                    line-height: 35px
+                @media only screen and (min-width:1441px)
+                    margin-bottom: 25px
+                    line-height: 45px
+                    font-size: 45px
+
+            .cmnBtn
+                width: 100%
+                background: #763813
+                justify-content: left
+                padding: 0 15px
+                margin-top: 10px
+                font-size: 14px
+                font-weight: 500
+                height: 45px
+                @media only screen and (min-width:1200px)
+                    height: 55px
+                    padding: 0 30px
+                @media only screen and (min-width:1441px)
+                    font-size: 16px
+                    height: 65px
+                &::after
+                    border-left: 10px solid #ffffff
+                &::before
+                    background: $hover
+                span
+                    color: $white
+
+            .dateBx
+                display: flex
+                align-items: center
+                position: relative
+                .label
+                    position: absolute
+                    left: 0
+                    top: 10px
+                    font-weight: 500
+                    font-size: 13px
+                    color: #464240
+                    background: $white
+                    pointer-events: none
+                    width: 100%
+                    @media only screen and (min-width: 576px)
+                        font-size: 14px
+                    @media only screen and (min-width: 1200px)
+                        font-size: 16px
+                        top: 0
+                    @media only screen and (min-width: 1441px)
+                        font-size: 18px
+
+                .icon
+                    position: absolute
+                    top: 0px
+                    bottom: 0
+                    right: -5px
+                    width: 30px
+                    height: 32px
+                    pointer-events: none
+                    background: #fff
+                    z-index: 3
+                    padding: 3px
+                    svg
+                        width: 18px
+                        @media only screen and (min-width: 1200px)
+                            width: 22px

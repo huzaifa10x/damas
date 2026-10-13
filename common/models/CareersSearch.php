@@ -1,0 +1,83 @@
+<?php
+
+namespace common\models;
+
+use Yii;
+use yii\base\Model;
+use yii\data\ActiveDataProvider;
+use common\models\Careers;
+
+/**
+ * CareersSearch represents the model behind the search form about `common\models\Careers`.
+ */
+class CareersSearch extends Careers
+{
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'status', 'created_by', 'updated_by'], 'integer'],
+            [['title', 'title_arabic', 'job_type', 'job_type_arabic', 'location', 'location_arabic', 'description', 'description_arabic', 'experience', 'experience_arabic', 'created_at', 'updated_at'], 'safe'],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function scenarios()
+    {
+        // bypass scenarios() implementation in the parent class
+        return Model::scenarios();
+    }
+
+    /**
+     * Creates data provider instance with search query applied
+     *
+     * @param array $params
+     *
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        $query = Careers::find();
+
+        // add conditions that should always apply here
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $this->load($params);
+
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
+        }
+
+        // grid filtering conditions
+        $query->andFilterWhere([
+            'id' => $this->id,
+            'status' => $this->status,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ]);
+
+        $query->andFilterWhere(['like', 'title', $this->title])
+            ->andFilterWhere(['like', 'title_arabic', $this->title_arabic])
+            ->andFilterWhere(['like', 'job_type', $this->job_type])
+            ->andFilterWhere(['like', 'job_type_arabic', $this->job_type_arabic])
+            ->andFilterWhere(['like', 'location', $this->location])
+            ->andFilterWhere(['like', 'location_arabic', $this->location_arabic])
+            ->andFilterWhere(['like', 'description', $this->description])
+            ->andFilterWhere(['like', 'description_arabic', $this->description_arabic])
+            ->andFilterWhere(['like', 'experience', $this->experience])
+            ->andFilterWhere(['like', 'experience_arabic', $this->experience_arabic]);
+
+        return $dataProvider;
+    }
+}

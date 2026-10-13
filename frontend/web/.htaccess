@@ -1,0 +1,58 @@
+# ---- 1. MIME Types (Declare early so module rules match correctly) ----
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType application/manifest+json .json
+</IfModule>
+
+# ---- 2. Rewrite Rules ----
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Strip deprecated AJAX crawling parameter (_escaped_fragment_)
+  RewriteCond %{QUERY_STRING} _escaped_fragment_
+  RewriteRule ^(.*)$ /$1? [R=301,L]
+
+  # Yii Framework: Forward non-existent files/directories to index.php
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . index.php [L]
+</IfModule>
+
+# ---- 3. Compression ----
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml font/woff2 application/manifest+json
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml application/manifest+json
+  # Skip already compressed files
+  SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|avif|woff2?|mp4)$ no-gzip
+</IfModule>
+
+# ---- 4. Browser Caching ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                 "access plus 1 year"
+  ExpiresByType application/javascript   "access plus 1 year"
+  ExpiresByType text/javascript          "access plus 1 year"
+  ExpiresByType font/woff2               "access plus 1 year"
+  ExpiresByType image/svg+xml            "access plus 1 year"
+  ExpiresByType image/webp               "access plus 1 year"
+  ExpiresByType image/png                "access plus 1 year"
+  ExpiresByType image/jpeg               "access plus 1 year"
+  ExpiresByType video/mp4                "access plus 1 year"
+  ExpiresByType text/html                "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Long cache for static assets (versioned via query strings like ?v=timestamp)
+  <FilesMatch "\.(css|js|woff2|svg|webp|png|jpe?g|mp4)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Prevent aggressive caching for PHP responses to allow back-forward cache (bfcache)
+  <FilesMatch "\.php$">
+    Header set Cache-Control "private, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>

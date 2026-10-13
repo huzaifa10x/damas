@@ -1,0 +1,894 @@
+//HOME_PAGE
+/************** ******* **************/
+/************* HOME_PAGE *************/
+/************** ******* **************/
+//MAINSLIDER
+
+#MainBanner
+    position: relative
+    z-index: 0
+    .carousel-inner
+        .carousel-item
+            width: 100%
+            height: 65vh
+            position: relative
+            display: flex
+            align-items: center
+            @media only screen and (min-width: 992px)
+                height: calc(100vh - 96px)
+            @media only screen and (min-width: 1351px)
+                height: calc(100vh - 105px)
+            @media only screen and (min-width: 1441px)
+                height: calc(100vh - 123px)
+            &.active
+                .bannerCaption
+                    .mainTitle, .SubInfo, .btnSec
+                        opacity: 1
+                        visibility: visible
+                        transform: translateY(0)
+
+            &::after
+                content: ""
+                position: absolute
+                bottom: 0
+                left: 0
+                height: 100%
+                width: 100%
+                opacity: 0.8
+                background: linear-gradient(90deg, rgba(60,36,21,1) 0%, rgba(60,36,21,0) 100%)
+
+            .imBox
+                width: 100%
+                height: 100%
+                position: absolute
+                z-index: 0
+                img, video
+                    transition: all 0.5s
+                    @include imgFit
+            .container
+                position: relative
+                padding: 0 15px
+
+            .bannerCaption
+                position: relative
+                z-index: 1
+                width: 100%
+                @media only screen and (min-width: 578px)
+                    max-width: 500px
+                @media only screen and (min-width: 992px)
+                    max-width: 800px
+                @media only screen and (min-width: 1441px)
+                    padding: 0
+                    bottom: -60px
+                @media only screen and (max-height: 750px)
+                    bottom: 0
+                @media only screen and (max-height: 400px)
+                    bottom: 30px
+                .mainTitle
+                    font-weight: 500
+                    color: #FFFFFF
+                    margin-bottom: 15px
+                    font-size: 28px
+                    transition: all 0.5s
+                    letter-spacing: 0.5px
+                    line-height: 33px
+                    opacity: 0
+                    visibility: hidden
+                    transform: translateY(30px)
+
+                    @media only screen and (min-width: 468px)
+                        font-size: 32px
+                        line-height: 37px
+                    @media only screen and (min-width: 576px)
+                        font-size: 38px
+                        line-height: 43px
+                    @media only screen and (min-width: 768px)
+                        font-size: 40px
+                        line-height: 45px
+                    @media only screen and (min-width: 992px)
+                        font-size: 55px
+                        line-height: 61px
+                    @media only screen and (min-width: 1351px)
+                        font-size: 70px
+                        line-height: 75px
+                    @media only screen and (min-width: 1441px)
+                        font-size: 80px
+                        line-height: 85px
+                    @media only screen and (max-height: 700px)
+                        font-size: 45px
+                        line-height: 45px
+                    @media only screen and (max-height: 500px)
+                        font-size: 24px
+                        line-height: 24px
+                .SubInfo
+                    font-size: 18px
+                    line-height: 23px
+                    font-weight: 300
+                    color: $white
+                    margin-bottom: 15px
+                    letter-spacing: 0.5px
+                    opacity: 0
+                    visibility: hidden
+                    transform: translateY(50px)
+                    transition-delay: 0.5s
+                    transition: all 0.5s
+                    @media only screen and (min-width: 768px)
+                        font-size: 22px
+                        line-height: 27px
+                    @media only screen and (min-width: 992px)
+                        font-size: 26px
+                        line-height: 33px
+                        margin-bottom: 25px
+                    @media only screen and (min-width: 1351px)
+                        font-size: 32px
+                        line-height: 37px
+                    @media only screen and (min-width: 1441px)
+                        font-size: 38px
+                        line-height: 45px
+                        margin-bottom: 45px
+                    @media only screen and (max-height: 700px)
+                        font-size: 24px
+                        line-height: 24px
+                    @media only screen and (max-height: 500px)
+                        font-size: 18px
+                        line-height: 18px
+                .btnSec
+                    opacity: 0
+                    visibility: hidden
+                    transform: translateY(0px)
+                    transition-delay: 0.5s
+                    transition: all 0.5s
+                .cmnBtn
+                    @media only screen and (max-height: 500px)
+                        width: 190px
+                        height: 45px
+
+    .navButtons
+        position: absolute
+        width: 80px
+        height: fit-content
+        bottom: 40px
+        left: 20px
+        button
+            opacity: 1
+            &:hover
+                .icon
+                    svg
+                        fill: $basecolor2
+            .icon
+                width: 18px
+                svg
+                    transition: all 0.5s
+                    fill: $white
+                    @include imgFit
+
+    .container
+        position: relative
+    .countBox
+        position: absolute
+        right: 15px
+        z-index: 1
+        display: flex
+        align-items: center
+        margin: -11px
+        bottom: 25px
+        width: fit-content
+        @media only screen and (min-width: 1200px)
+            bottom: 40px
+            right: 0
+        &::after
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            margin: auto
+            content: "/"
+            color: rgb(255, 255, 255)
+            width: fit-content
+            height: fit-content
+            bottom: 0
+            font-weight: 300
+            font-size: 15px
+            @media only screen and (min-width:578px)
+                font-size: 18px
+        >*
+            padding: 11px
+        .currentItems
+            color: #D5AE69
+            font-weight: 500
+            font-size: 16px
+            @media only screen and (min-width:578px)
+                font-size: 18px
+        .totalCount
+            font-weight: 500
+            color: rgba(255, 255, 255)
+            font-size: 16px
+            @media only screen and (min-width:578px)
+                font-size: 18px
+
+#about
+    position: relative
+    padding: 50px 0
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 60px 0
+    @media only screen and (min-width:1441px)
+        padding: 145px 0
+
+    .floaticon
+        position: absolute
+        top: 0
+        bottom: 0
+        right: 0
+        width: 100%
+        height: fit-content
+        opacity: 0.08
+        pointer-events: none
+        z-index: 1
+        margin: auto
+        animation: rotate 5s linear infinite
+        max-width: 240px
+        @media only screen and (min-width:1200px)
+            max-width: 340px
+        @media only screen and (min-width:1441px)
+            max-width: 440px
+        img
+            width: auto
+    .contentBx
+        @media only screen and (min-width:992px)
+            padding-left: 25px
+        @media only screen and (min-width:1200px)
+            padding-left: 30px
+        @media only screen and (min-width:1441px)
+            padding-left: 75px
+        .title
+            font-size: 24px
+            font-weight: 500
+            color: #763813
+            margin-bottom: 22px
+    .imgBox
+        width: 100%
+        height: 100%
+        overflow: hidden
+        &:hover
+            img
+                transform: scale(1.1)
+        img
+            transition: all 0.5s
+            @include imgFit
+
+#health
+    position: relative
+    z-index: 0
+    padding: 60px 0
+    @media only screen and (min-width:768px)
+        padding: 80px 0
+    @media only screen and (min-width:1200px)
+        padding: 120px 0
+    @media only screen and (min-width:1441px)
+        padding: 180px 0
+    .row
+        margin: -10px
+        >*
+            padding: 10px
+
+    &::before
+        position: absolute
+        top: 0
+        left: 0
+        content: ''
+        z-index: 0
+        width: 100%
+        height: 100%
+        background: rgba(0,0,0,0.3)
+        z-index: -1
+
+    .videoBx
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        z-index: -2
+
+        video
+            @include imgFit
+    .contentBox
+        max-width: 440px
+        p
+            color: $white
+
+    .flxBox
+        display: flex
+        flex-wrap: wrap
+        justify-content: center
+        margin: -25px -15px
+        @media only screen and (min-width:992px)
+            margin: -25px -30px
+            padding-left: 55px
+        @media only screen and (min-width:1441px)
+            margin: -43px -53px
+        >*
+            padding: 25px 15px
+            width: calc(100% / 2)
+            @media only screen and (min-width:678px)
+                width: calc(100% / 3)
+            @media only screen and (min-width:992px)
+                padding: 25px 30px
+                width: calc(100% / 2)
+            @media only screen and (min-width:1441px)
+                padding: 43px 53px
+            .couterBx
+                display: flex
+                align-items: flex-start
+                flex-wrap: wrap
+                .icon
+                    width: 45px
+                    @media only screen and (min-width:678px)
+                        width: 50px
+                    @media only screen and (min-width:1441px)
+                        width: 60px
+                    img
+                        transition: all 0.5s
+                        @include imgFit
+                .info
+                    width: calc(100% - 45px)
+                    padding-left: 15px
+                    @media only screen and (min-width:678px)
+                        padding-left: 25px
+                        width: calc(100% - 50px)
+                    @media only screen and (min-width:1441px)
+                        width: calc(100% - 60px)
+                        padding-left: 45px
+                    .numTxt
+                        font-weight: 300
+                        color: $white
+                        margin-bottom: 10px
+                        font-size: 30px
+                        line-height: 20px
+                        @media only screen and (min-width:678px)
+                            font-size: 45px
+                            line-height: 35px
+                        @media only screen and (min-width:1200px)
+                            font-size: 55px
+                            line-height: 45px
+                        @media only screen and (min-width:1441px)
+                            font-size: 70px
+                            line-height: 60px
+
+                    .txt
+                        font-size: 16px
+                        font-weight: 300
+                        color: $white
+                        @media only screen and (min-width:768px)
+                            font-size: 18px
+                        @media only screen and (min-width:1441px)
+                            font-size: 22px
+
+#service
+    position: relative
+    padding: 50px 0
+    z-index: 0
+
+    @media only screen and (min-width:1200px)
+        padding: 60px 0
+    @media only screen and (min-width:1441px)
+        padding: 150px 0
+
+    .floaticon
+        position: absolute
+        bottom: 50px
+        left: 40px
+        width: 100%
+        height: fit-content
+        max-width: 350px
+        opacity: 0.08
+        pointer-events: none
+        z-index: 1
+        margin: auto
+        animation: rotate 5s linear infinite
+        img
+            width: auto
+    .leftSec
+        display: flex
+        flex-wrap: wrap
+        @media only screen and (max-width:992px)
+            justify-content: space-between
+
+    .serviceSlider
+        .serviceBox
+            width: 100%
+            height: 100%
+            display: block
+            &:hover
+                .imgBox
+                    img
+                        transform: scale(1.1)
+            .imgBox
+                width: 100%
+                overflow: hidden
+                @media only screen and (max-width:578px)
+                    height: 320px
+
+                img
+                    object-position: top
+                    transition: all 0.5s
+                    @include imgFit
+            .info
+                padding-top: 25px
+                .subT
+                    font-size: 22px
+                    font-weight: 500
+                    color: #000000
+                    line-height: 30px
+
+#doctors
+    position: relative
+    padding: 50px 0
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 60px 0
+    @media only screen and (min-width:1441px)
+        padding: 100px 0
+    .bannerBg
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        object-fit: cover
+        z-index: -1
+    .leftSec
+        display: flex
+        flex-wrap: wrap
+        @media only screen and (max-width:992px)
+            justify-content: space-between
+    .doctorSlider
+        .serviceBox
+            width: 100%
+            height: 100%
+            display: block
+            &:hover
+                .imgBox
+                    img
+                        transform: scale(1.1)
+            .imgBox
+                width: 100%
+                overflow: hidden
+                @media only screen and (max-width:578px)
+                    height: 320px
+                img
+                    object-position: top
+                    transition: all 0.5s
+                    @include imgFit
+            .info
+                padding-top: 25px
+                .name
+                    font-size: 20px
+                    font-weight: 500
+                    color: #763813
+                    line-height: 25px
+                    margin-bottom: 10px
+
+            .post
+                font-weight: 300
+                font-size: 16px
+                color: #464240
+#special
+    position: relative
+    padding: 50px 0
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 60px 0
+    @media only screen and (min-width:1441px)
+        padding: 150px 0
+    .flxBox
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: -5px
+        margin-bottom: 20px
+        flex-wrap: wrap
+        @media only screen and (min-width:1200px)
+            margin-bottom: 40px
+        >*
+            padding: 5px
+    .bookNow
+        width: fit-content
+        display: flex
+        color: #ffffff
+        font-size: 16px
+        font-weight: 500
+        letter-spacing: 0.5px
+        min-width: 110px
+        position: relative
+        @media only screen and (min-width:1200px)
+            min-width: 135px
+
+        &:hover
+            letter-spacing: 1px
+        &::after
+            position: absolute
+            content: ''
+            top: 0
+            right: 0px
+            bottom: 0
+            width: 10px
+            height: 10px
+            border-left: 10px solid #ffffff
+            border-bottom: 10px solid transparent
+            margin: auto
+            transform: rotate(135deg)
+            transition: all 0.5s
+
+    .rflx
+        display: flex
+        flex-wrap: wrap
+        margin: -7.5px
+        >*
+            padding: 7.5px
+        .leftBx
+            width: 100%
+            @media only screen and (min-width:678px)
+                width: 50%
+            @media only screen and (min-width:1200px)
+                width: 700px
+            @media only screen and (min-width:1441px)
+                width: 810px
+        .rtSec
+            width: 100%
+            @media only screen and (min-width:678px)
+                width: calc(100% - 50%)
+            @media only screen and (min-width:1200px)
+                width: calc(100% - 700px)
+            @media only screen and (min-width:1441px)
+                width: calc(100% - 810px)
+
+    .specialBx
+        width: 100%
+        height: 100%
+        display: block
+        z-index: 0
+        padding: 60px 25px
+        position: relative
+        overflow: hidden
+        display: flex
+        align-items: center
+        @media only screen and (min-width:1200px)
+            padding: 60px 40px
+        @media only screen and (min-width:1441px)
+            padding: 77px 75px
+        &:hover
+            img
+                transform: scale(1.1)
+        img
+            position: absolute
+            top: 0
+            left: 0
+            transition: all 0.5s
+            @include imgFit
+        .contentBx
+            max-width: 410px
+            z-index: 1
+            position: relative
+            height: fit-content
+            .title
+                color: $white
+                margin-bottom: 25px
+                font-weight: 500
+                font-size: 20px
+                line-height: 30px
+                @media only screen and (min-width:768px)
+                    font-size: 25px
+                    line-height: 35px
+                @media only screen and (min-width:1200px)
+                    line-height: 45px
+                    font-size: 35px
+                @media only screen and (min-width:1441px)
+                    margin-bottom: 35px
+                    font-size: 40px
+                    line-height: 50px
+                br
+                    @media only screen and (max-width:1200px)
+                        display: none
+
+#appointment
+    position: relative
+    padding: 40px 0
+    @media only screen and (min-width:1200px)
+        padding: 50px 0
+    @media only screen and (min-width:1441px)
+        padding: 80px 0
+    .appointMentBox
+        background: $white
+        padding: 40px 25px 50px
+        max-width: 515px
+        margin: auto
+        position: relative
+        @media only screen and (min-width:992px)
+            padding: 40px 45px 50px
+            margin: 0
+            margin-left: auto
+        @media only screen and (min-width:1200px)
+            padding: 35px 45px 40px
+        @media only screen and (min-width:1441px)
+            padding: 44px 55px 63px
+        .imgBox
+            position: absolute
+            top: 0
+            right: 0
+            max-width: 175px
+            animation: rotate 5s linear infinite
+        .row
+            margin: -10px
+            >*
+                padding: 10px
+        .title
+            color: #000000
+            margin-bottom: 15px
+            font-size: 30px
+            line-height: 30px
+            font-weight: 500
+            @media only screen and (min-width:1200px)
+                font-size: 35px
+                line-height: 35px
+            @media only screen and (min-width:1441px)
+                margin-bottom: 25px
+                line-height: 45px
+                font-size: 45px
+
+        .cmnBtn
+            width: 100%
+            background: #763813
+            justify-content: left
+            padding: 0 15px
+            margin-top: 10px
+            font-size: 14px
+            font-weight: 500
+            height: 45px
+            @media only screen and (min-width:1200px)
+                height: 55px
+                padding: 0 30px
+            @media only screen and (min-width:1441px)
+                font-size: 16px
+                height: 65px
+            &::after
+                border-left: 10px solid #ffffff
+            &::before
+                background: $hover
+            span
+                color: $white
+
+        .dateBx
+            display: flex
+            align-items: center
+            position: relative
+            .label
+                position: absolute
+                left: 0
+                top: 10px
+                font-weight: 500
+                font-size: 13px
+                color: #464240
+                background: $white
+                pointer-events: none
+                width: 100%
+                @media only screen and (min-width: 576px)
+                    font-size: 14px
+                @media only screen and (min-width: 1200px)
+                    font-size: 16px
+                    top: 0
+                @media only screen and (min-width: 1441px)
+                    font-size: 18px
+
+            .icon
+                position: absolute
+                top: 0px
+                bottom: 0
+                right: -5px
+                width: 30px
+                height: 32px
+                pointer-events: none
+                background: #fff
+                z-index: 3
+                padding: 3px
+                svg
+                    width: 18px
+                    @media only screen and (min-width: 1200px)
+                        width: 22px
+
+#insurance
+    position: relative
+    padding: 40px 0 20px
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 60px 0 30px
+    @media only screen and (min-width:1441px)
+        padding: 95px 0 50px
+    .flxBox
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: -5px
+        margin-bottom: 20px
+        flex-wrap: wrap
+        @media only screen and (min-width:1200px)
+            margin-bottom: 40px
+        >*
+            padding: 5px
+    .insurencBx
+        width: 100%
+        display: block
+        height: 100%
+        position: relative
+        overflow: hidden
+        &:hover
+            .contentBx
+                opacity: 1
+                visibility: visible
+        .imgBox
+            width: 100%
+            height: 100%
+            overflow: hidden
+            @include center
+            img
+                transition: all 0.5s
+                @include imgFit
+        .contentBx
+            position: absolute
+            top: 0
+            width: 100%
+            right: 0
+            height: 100%
+            background: #D5AE69
+            text-align: center
+            padding: 40px
+            transition: all 0.5s
+            opacity: 0
+            visibility: hidden
+            @include center
+            .subT
+                font-weight: 500
+                color: $white
+                font-size: 16px
+                @media only screen and (min-width:992px)
+                    font-size: 18px
+                @media only screen and (min-width:1200px)
+                    font-size: 20px
+                @media only screen and (min-width:1441px)
+                    font-size: 23px
+
+#testimonial
+    position: relative
+    padding: 20px 0
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 30px 0
+    @media only screen and (min-width:1441px)
+        padding: 50px 0 75px
+
+    .flxBox
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: -5px
+        margin-bottom: 20px
+        flex-wrap: wrap
+        @media only screen and (min-width:1200px)
+            margin-bottom: 40px
+        >*
+            padding: 5px
+#instaFeeds
+    position: relative
+    padding: 20px 0 40px
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 30px 0 60px
+    @media only screen and (min-width:1441px)
+        padding: 75px 0 155px
+    .flxBox
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: -5px
+        margin-bottom: 20px
+        flex-wrap: wrap
+        @media only screen and (min-width:1200px)
+            margin-bottom: 40px
+        >*
+            padding: 5px
+        .NavflxBx
+            padding-bottom: 0
+        .mainHead
+            .head
+                display: flex
+                align-items: center
+                font-size: 20px
+                color: #212121
+                font-weight: 500
+                @media only screen and (min-width:1441px)
+                    font-size: 24px
+
+                .icon
+                    width: 27px
+                span
+                    margin: 0 15px
+    .intaBx
+        .imgBox
+            margin-bottom: 0
+#review
+    position: relative
+    padding: 20px 0
+    z-index: 0
+    @media only screen and (min-width:1200px)
+        padding: 30px 0
+    @media only screen and (min-width:1441px)
+        padding: 50px 0 75px
+
+    .flxBox
+        display: flex
+        align-items: center
+        justify-content: space-between
+        margin: -5px
+        margin-bottom: 20px
+        flex-wrap: wrap
+        @media only screen and (min-width:1200px)
+            margin-bottom: 40px
+        >*
+            padding: 5px
+    .reviewSlider
+        .reviewBx
+            display: block
+            width: 100%
+            height: 100%
+            position: relative
+            padding: 23px 18px
+            background: #FAF5ED
+            z-index: 0
+            .goImg
+                position: absolute
+                top: 23px
+                right: 23px
+                pointer-events: none
+                z-index: -1
+            .avtBx
+                display: flex
+                align-items: center
+                margin-bottom: 15px
+                @media only screen and (min-width:1441px)
+                    margin-bottom: 25px
+                @media only screen and (min-width:1551px)
+                    margin-bottom: 35px
+                .avImg
+                    width: 45px
+                    height: 45px
+                    border-radius: 50%
+                    overflow: hidden
+                    img
+                        transition: all 0.5s
+                        @include imgFit
+
+                .info
+                    padding-left: 18px
+                    width: calc(100% - 45px)
+                    .name
+                        font-size: 18px
+                        color: #763813
+                        font-weight: 500
+                        margin-bottom: 5px
+                    .post
+                        font-size: 16px
+                        font-weight: 400
+                        color: #4D4D4D
+            .rateBx
+                margin-bottom: 15px
+                @media only screen and (min-width:1551px)
+                    margin-bottom: 25px
+                .jq-star
+                    padding: 2px
+            .content
+                p
+                    font-weight: 400
+                    @media only screen and (min-width:768px)
+                        font-size: 15px
+                        line-height: 25px

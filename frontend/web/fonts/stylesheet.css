@@ -1,0 +1,45 @@
+@font-face {
+    font-family: 'Salzburg-Serial';
+    src: url('Salzburg-Serial-Light-Regular.woff2') format('woff2'),
+        url('Salzburg-Serial-Light-Regular.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salzburg-Serial';
+    src: url('Salzburg-Serial-Medium-Regular.woff2') format('woff2'),
+        url('Salzburg-Serial-Medium-Regular.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salzburg-Serial';
+    src: url('Salzburg-Serial-Heavy-Regular.woff2') format('woff2'),
+        url('Salzburg-Serial-Heavy-Regular.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salzburg-Serial';
+    src: url('Salzburg-Serial-ExtraLight-Regular.woff2') format('woff2'),
+        url('Salzburg-Serial-ExtraLight-Regular.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salzburg-Serial';
+    src: url('Salzburg-Serial-ExtraBold-Regular.woff2') format('woff2'),
+        url('Salzburg-Serial-ExtraBold-Regular.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+

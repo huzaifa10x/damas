@@ -1,0 +1,62 @@
+<?php
+
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+use kartik\select2\Select2;
+
+/* @var $this yii\web\View */
+/* @var $model
+  common\models\Insurance */
+/* @var $form yii\widgets\ActiveForm */
+?>
+<?php $form = ActiveForm::begin(); ?>
+<div class="row">
+    <div class='col-md-12 col-sm-12 col-xs-12 mt-2'>
+        <?php
+        $departments = yii\helpers\ArrayHelper::map(\common\models\Departments::find()->where(['status' => 1])->all(), 'id', 'department_name');
+        if ($model->department != '') {
+            $model->department = explode(',', $model->department);
+        }
+        ?>
+        <?=
+        $form->field($model, 'department')->widget(Select2::classname(), [
+            'data' => $departments,
+            'language' => 'en',
+            'options' => [
+                'placeholder' => 'Select',
+//                'multiple' => true,
+                ],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]);
+        ?>
+    </div>
+    <div class='col-md-4 col-sm-6 col-xs-12 mt-2'>
+         <?= $form->field($model, 'image')->fileInput()->hint('Dimensions : 200 * 100') ?>
+        <?php
+        if ($model->image != '' && $model->id != "") {
+            echo '<img width="75" style="border: 2px solid #d2d2d2;margin-right:.5em;" src="' . Yii::$app->request->baseUrl . '/../uploads/insurance/' . $model->image . '?' . rand() . '" />';
+            ?>
+            <br>
+            <br>
+        <?php }
+        ?>
+    </div>
+    <div class='col-md-4 col-sm-6 col-xs-12 mt-2'>
+         <?= $form->field($model, 'status')->dropDownList(['1' => 'Active', '0' => 'Inactive']) ?>
+    </div>
+</div>
+<div class="row">
+    <div class='col-md-12 col-sm-12 col-xs-12 mt-4'>
+        <div class="form-group">
+            <?=
+            Html::submitButton($model->isNewRecord ?
+                            'Create' :
+                            'Update', ['class' => $model->isNewRecord ? 'btn btn-primary me-2' : 'btn
+            btn-primary me-2', 'style' => 'float:right;'])
+            ?>
+        </div>
+    </div>
+</div>
+<?php ActiveForm::end(); ?>

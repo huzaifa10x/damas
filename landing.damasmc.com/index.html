@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subdomain Check</title>
+</head>
+<body>
+    <h1>Subdomain Check</h1>
+    <p>
+        You are currently visiting: <strong id="domain"></strong>
+    </p>
+    <p id="message"></p>
+
+    <script>
+
+        const currentDomain = window.location.hostname;
+
+
+        const subdomainPattern = /^[a-zA-Z0-9-]+\./;
+        const isSubdomain = subdomainPattern.test(currentDomain);
+
+
+        document.getElementById("domain").textContent = currentDomain;
+        
+        if (isSubdomain) {
+            document.getElementById("message").textContent = "You are visiting a subdomain!";
+        } else {
+            document.getElementById("message").textContent = "You are not visiting a subdomain.";
+        }
+    </script>
+</body>
+</html>
+
+

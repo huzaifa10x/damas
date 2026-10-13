@@ -1,0 +1,320 @@
+.authPage
+    margin: 0 !important
+    background: #FBF7F0
+    .Custom_container
+        @media only screen and (min-width: 992px)
+            padding: 0
+            margin-right: auto
+
+    #loginSec
+        .dFlex
+            display: flex
+            flex-wrap: wrap
+            @media only screen and (min-width: 1200px)
+                margin: 0 -30px
+            @media only screen and (min-width: 1441px)
+                margin: 0 -50px
+            @media only screen and (min-width: 1661px)
+                margin: 0 -70px
+            @media only screen and (min-width: 1771px)
+                margin: 0 -100px
+            >*
+                @media only screen and (min-width: 1200px)
+                    padding: 0 30px
+                @media only screen and (min-width: 1441px)
+                    padding: 0 50px
+                @media only screen and (min-width: 1661px)
+                    padding: 0 70px
+                @media only screen and (min-width: 1771px)
+                    padding: 0 100px
+            .lft
+                width: 100%
+
+                @media only screen and (min-width: 1200px)
+                    width: 595px
+                @media only screen and (min-width: 1350px)
+                    width: 800px
+                @media only screen and (min-width: 1551px)
+                    width: 950px
+                @media only screen and (min-width: 1661px)
+                    width: 1052px
+                .imgBx
+                    width: 100%
+                    height: 100%
+                    overflow: hidden
+                    img
+                        @include imgFit
+            .ryt
+                width: 100%
+                @media only screen and (max-width: 1199px)
+                    padding: 0 15px
+                @media only screen and (max-width: 991px)
+                    padding: 0
+                @media only screen and (min-width: 1200px)
+                    width: calc( 100% - 595px )
+                @media only screen and (min-width: 1350px)
+                    width: calc( 100% - 800px )
+                @media only screen and (min-width: 1551px)
+                    width: calc( 100% - 950px )
+                @media only screen and (min-width: 1661px)
+                    width: calc( 100% - 1052px )
+
+                .formWrap
+                    padding: 30px 0
+                    @media only screen and (min-width: 768px)
+                        padding: 40px 0
+                    @media only screen and (min-width: 992px)
+                        padding: 50px 0
+                    @media only screen and (min-width: 1200px)
+                        padding: 60px 0
+                    @media only screen and (min-width: 1441px)
+                        padding: 80px 0
+                    @media only screen and (min-width: 1551px)
+                        padding: 90px 0
+                    @media only screen and (min-width: 1661px)
+                        padding: 100px 0
+                    @media only screen and (min-width: 1771px)
+                        padding: 150px 0
+                    .hasIcon
+                        input
+                            position: relative
+                        .icon
+                            position: absolute
+                            width: 20px
+                            height: 18px
+                            bottom: 0
+                            top: 0
+                            margin: auto
+                            right: 0
+                            svg
+                                fill: #3C2415
+                                opacity: .3
+                    .formTle
+                        margin-bottom: 15px
+                        @media only screen and (min-width: 576px)
+                            margin-bottom: 20px
+                        @media only screen and (min-width: 992px)
+                            margin-bottom: 30px
+                        .mTle
+                            font-size: 20px
+                            line-height: 1.2
+                            font-weight: 500
+                            color: #763813
+                            margin: 5px 0
+                            @media only screen and (min-width: 576px)
+                                font-size: 22px
+                            @media only screen and (min-width: 768px)
+                                font-size: 24px
+                            @media only screen and (min-width: 992px)
+                                font-size: 32px
+                                margin: 10px 0
+                            @media only screen and (min-width: 1200px)
+                                font-size: 38px
+                                margin: 15px 0
+                            @media only screen and (min-width: 1441px)
+                                font-size: 50px
+                            br
+                                display: none
+                                @media only screen and (min-width: 1200px)
+                                    display: block
+                        .sTle
+                            font-size: 14px
+                            line-height: 1
+                            font-weight: 300
+                            color: #0E1C37
+                            margin: 5px 0
+                            @media only screen and (min-width: 576px)
+                                font-size: 16px
+                            @media only screen and (min-width: 992px)
+                                font-size: 20px
+                                margin: 10px 0
+                            @media only screen and (min-width: 1441px)
+                                font-size: 24px
+
+                .formBox
+                    width: 100% 
+                    border-radius: 10px
+                     
+                    .lteWrap
+                        margin-bottom: 20px
+                        @media only screen and (min-width: 768px)
+                            margin-bottom: 25px
+                        @media only screen and (min-width: 1200px)
+                            margin-bottom: 30px
+                        @media only screen and (min-width: 1441px)
+                            margin-bottom: 40px
+
+                        .tle
+                            font-weight: 400
+                            color: #0E1C37
+                            font-size: 20px
+                            margin-bottom: 8px
+                            @media only screen and (min-width: 768px)
+                                font-size: 24px
+                            @media only screen and (min-width: 992px)
+                                font-size: 26px
+                                margin-bottom: 10px
+                            @media only screen and (min-width: 1200px)
+                                font-size: 30px
+                                margin-bottom: 15px
+                            @media only screen and (min-width: 1441px)
+                                font-size: 32px
+                            @media only screen and (min-width: 1551px)
+                                font-size: 35px
+                        .info
+                            font-weight: 300
+                            line-height: 1.5
+                            font-size: 13px
+                            @media only screen and (min-width: 648px)
+                                font-size: 14px
+                            @media only screen and (min-width: 992px)
+                                font-size: 16px
+                            @media only screen and (min-width: 1441px)
+                                font-size: 18px
+                .helpWrap
+                    display: flex
+                    align-items: center
+                    margin: 0 -7.5px
+                    >*
+                        padding: 0 7.5px
+                    .cCheckBtn
+                        display: flex
+                        font-size: 14px
+                        font-weight: 500
+                        margin: 0 -5px
+                        @media only screen and (min-width: 768px)
+                            font-size: 16px
+                            >*
+                                padding: 0 5px
+                        label
+                            margin-bottom: 0
+                    .fPasswordBtn
+                        display: block
+                        font-weight: 500
+                        &.txt
+                            color: #763813
+                .btnWrap
+                    margin-top: 20px
+                    width: 100%
+                    @media only screen and (min-width: 768px)
+                        margin-top: 25px
+                    @media only screen and (min-width: 992px)
+                        margin-top: 30px
+                    .baseBtn
+                        display: flex
+                        align-items: center
+                        justify-content: space-between
+                        width: 100%
+                        background: #763813
+                        padding: 15px
+                        @media only screen and (min-width: 576px)
+                            padding: 15px 20px
+                        @media only screen and (min-width: 768px)
+                            padding: 20px 25px
+                        @media only screen and (min-width: 1200px)
+                            padding: 25px 30px
+                        &::before
+                            background: #d5ae69
+                        .lnk
+                            font-size: 14px
+                            color: #FFFFFF
+                            font-weight: 500
+                            @media only screen and (min-width: 768px)
+                                font-size: 16px
+                        span
+                            color: $white
+                            svg
+                                width: 5px
+                .createTxt
+                    font-size: 16px
+                    display: flex
+                    text-align: center
+                    justify-content: center
+                    color: #0E1C37
+                    font-weight: 300
+                    margin-top: 20px
+                    margin-bottom: 0
+                    @media only screen and (min-width: 768px)
+                        font-size: 18px
+                        margin-top: 25px
+                    @media only screen and (min-width: 1200px)
+                        font-size: 20px
+                        margin-top: 30px
+                    @media only screen and (min-width: 1441px)
+                        margin-top: 40px
+                    a
+                        display: block
+                        color: #0E1C37
+                        text-decoration: none
+                        font-weight: 500 !important
+                        margin: 0 5px
+            .chkBox
+                input[type="checkbox"], input[type="radio"]
+                    width: 15px !important
+                    height: 15px !important
+                    position: relative
+                    z-index: 1
+                    outline: none
+                    visibility: hidden
+                    border-radius: 5px
+                    padding: 0
+                    height: initial
+                    width: initial
+                    margin-bottom: 0
+                    display: none
+                    cursor: pointer
+                    @media only screen and (max-width: 576px)
+                        margin-top: 5px
+                    &:checked
+                        &::after
+                            opacity: 1
+                            visibility: visible
+                        & + label:after
+                            content: ''
+                            display: block
+                            position: absolute
+                            background: url(../images/XZ.svg) no-repeat
+                            width: 11px
+                            height: 8px
+                            background-size: contain
+                            left: 4px
+                            top: 10px
+                            @media only screen and ( min-width: 1200px )
+                                left: 6px
+                                top: 10px
+                        & + label::before
+                            background-color: $basecolor
+                            border-color: $basecolor
+                label
+                    margin: 0
+                    color: #272525
+                    font-weight: 500
+                    line-height: 28px
+                    display: flex
+                    align-items: center
+                    cursor: pointer
+                    position: relative
+                    cursor: pointer 
+                    font-size: 16px 
+                    padding: 0 30px !important
+                    &::selection
+                        background: transparent
+                    &:before
+                        content: ""
+                        -webkit-appearance: none
+                        cursor: pointer
+                        position: absolute
+                        left: 0px
+                        vertical-align: middle
+                        display: inline-block
+                        background-color: white
+                        visibility: visible
+                        border: solid 1px #464240
+                        width: 18px
+                        height: 18px
+                        border-radius: 0px
+                        top: 5px
+                        @media only screen and ( min-width: 1200px )
+                            top: 3px
+                            width: 22px
+                            height: 22px

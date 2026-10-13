@@ -1,0 +1,254 @@
+.faqPage
+    overflow: inherit !important
+    #faq
+        position: relative
+        padding: 40px 0 20px
+        @media only screen and (min-width:1200px)
+            padding: 60px 0 30px
+        @media only screen and (min-width:1441px)
+            padding: 95px 0 65px
+        .container
+            .sideNav
+                border: 1px solid #ECECEC
+                width: 100%
+                max-width: 375px
+                padding: 0px 0
+                @media only screen and (max-width:992px)
+                    display: none
+                @media only screen and (min-width:992px)
+                    position: sticky
+                    top: 20px
+                    transition: all 0.5s
+
+                ul
+                    li
+                        .pageLink
+                            display: block
+                            width: 100%
+                            color: #464240
+                            font-size: 18px
+                            font-weight: 500
+                            padding: 20px 44px
+                            @media only screen and (min-width:1351px)
+                                font-size: 20px
+                            &:not(.collapsed)
+                                background: $basecolor
+                                color: $white
+
+            .faqAccord
+                @media only screen and (min-width:992px)
+                    max-width: 775px
+                    padding-left: 40px
+
+                .accordion-item
+                    border: 0
+                    box-shadow: 0
+                    background: transparent
+                    &:not(:last-of-type)
+                        margin-bottom: 10px
+                        @media only screen and (min-width:992px)
+                            margin-bottom: 0
+                    .accordion-header
+                        @media only screen and (min-width:992px)
+                            display: none
+                        .accordion-button
+                            background: $basecolor
+                            color: $white
+                            border-radius: 0
+                            padding: 7px 15px
+                            box-shadow: none
+                            outline: 0
+                            font-size: 15px
+
+                            &::after
+                                position: absolute
+                                top: 0
+                                right: 25px
+                                content: '+'
+                                background-image: none
+                                font-size: 20px
+                                font-weight: 800
+                                color: #ffffff
+                                margin: auto
+                                transform: none
+                                bottom: 0
+                                line-height: 20px
+
+                            &:not(.collapsed)
+                                &::after
+                                    content: '-'
+
+                    .accordion-collapse
+                        .accordion-body
+                            padding: 35px 0px 0
+                            @media only screen and (min-width:992px)
+                                padding: 0
+                            .cmnAccord
+                                .accordion-item
+                                    &:not(:last-of-type)
+                                        margin-bottom: 15px
+                                        border-bottom: 1px solid rgb(0, 0, 0,0.13)
+                                        @media only screen and (min-width:992px)
+                                            margin-bottom: 30px
+                                .accordion-header
+                                    display: block
+                                    .accordion-button
+                                        width: 100%
+                                        padding: 0
+                                        background: transparent
+                                        padding-bottom: 10px
+                                        font-weight: 500
+                                        color: #000000
+                                        border: 0
+                                        box-shadow: none
+                                        outline: 0
+                                        display: flex
+                                        align-items: flex-start
+                                        border-radius: 0px
+                                        padding-right: 30px
+                                        font-size: 14px
+                                        line-height: 24px
+                                        padding-left: 30px
+                                        @media only screen and (min-width:992px)
+                                            font-size: 16px
+                                            padding-left: 50px
+                                            line-height: 26px
+                                            padding-bottom: 15px
+                                        @media only screen and (min-width:1441px)
+                                            font-size: 18px
+                                            line-height: 28px
+                                        @media only screen and (min-width:1551px)
+                                            font-size: 20px
+                                            line-height: 30px
+                                            padding-bottom: 30px
+                                        &::after
+                                            position: absolute
+                                            top: -25px
+                                            right: 0
+                                            content: '+'
+                                            background-image: none
+                                            font-size: 18px
+                                            font-weight: 800
+                                            color: $basecolor
+                                            margin: auto
+                                            transform: none
+                                            line-height: 5px
+                                            border: 1px solid rgba(112, 112, 112,0.11)
+                                            width: 35px
+                                            height: 35px
+                                            border-radius: 50%
+                                            display: flex
+                                            align-items: center
+                                            justify-content: center
+                                            @media only screen and (min-width:1200px)
+                                                font-size: 25px
+                                                width: 40px
+                                                height: 40px
+                                        &:not(.collapsed)
+                                            &::after
+                                                content: '-'
+                                        &::before
+                                            position: absolute
+                                            top: 0
+                                            content: ''
+                                        .numTxt
+                                            font-size: 18px
+                                            color: #000000
+                                            position: relative
+                                            font-weight: 400
+                                            position: absolute
+                                            top: 0
+                                            left: 0
+                                            font-size: 14px
+                                            line-height: 21px
+                                            @media only screen and (min-width:992px)
+                                                font-size: 16px
+                                                line-height: 26px
+                                            @media only screen and (min-width:1441px)
+                                                font-size: 18px
+                                                line-height: 28px
+
+                                .accordion-body
+                                    padding: 0px 0
+                                    color: #000000
+                                    margin-bottom: 15px
+                                    font-size: 14px
+                                    font-weight: 500
+                                    line-height: 20px
+                                    padding-left: 30px
+                                    @media only screen and (min-width:992px)
+                                        padding: 15px 0
+                                        padding-left: 50px
+                                    @media only screen and (min-width: 1441px)
+                                        font-size: 15px
+                                        line-height: 21px
+                                        margin-bottom: 25px
+                                    @media only screen and (min-width: 1600px)
+                                        font-size: 17px
+                                        line-height: 26px
+                                    p
+                                        padding: 0px 0
+                                        color: #000000
+                                        margin-bottom: 15px
+                                        font-size: 14px
+                                        font-weight: 500
+                                        line-height: 20px
+                                        padding-left: 30px
+                                        @media only screen and (min-width:992px)
+                                            padding: 15px 0
+                                            padding-left: 50px
+                                        @media only screen and (min-width: 1441px)
+                                            font-size: 15px
+                                            line-height: 21px
+                                            margin-bottom: 25px
+                                        @media only screen and (min-width: 1600px)
+                                            font-size: 17px
+                                            line-height: 26px
+
+                                    strong
+                                        font-weight: 600
+                                    ul
+                                        li
+                                            padding-left: 20px
+                                            padding-right: 5px
+                                            position: relative
+                                            z-index: 1
+                                            font-size: 14px
+                                            font-weight: 300
+                                            line-height: 1.5
+                                            color: $text
+                                            margin: 5px 0
+                                            @media only screen and (min-width: 768px)
+                                                padding-left: 20px
+                                                padding-right: 10px
+                                                margin: 10px 0
+                                                font-size: 15px
+                                            @media only screen and (min-width: 1441px)
+                                                padding-left: 30px
+                                                margin: 15px 0
+                                                font-size: 16px
+                                            a
+                                                display: block
+                                                color: $text
+                                            &::after
+                                                content: ''
+                                                position: absolute
+                                                top: 5px
+                                                left: 0
+                                                background-image: url("../images/liIcon.svg")
+                                                background-size: contain
+                                                background-repeat: no-repeat
+                                                width: 12px
+                                                height: 12px
+                                                @media only screen and (min-width: 1441px)
+                                                    width: 14px
+                                                    height: 14px
+    #service
+        position: relative
+        padding: 20px 0 40px
+        @media only screen and (min-width:1200px)
+            padding: 30px 0 60px
+        @media only screen and (min-width:1441px)
+            padding: 65px 0 125px
+        .floaticon
+            left: 140px

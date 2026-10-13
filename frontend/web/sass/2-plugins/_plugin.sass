@@ -1,0 +1,290 @@
+//PLUGIN
+.visible, .invisible
+    opacity: 0.0
+    transition: opacity 0.5s ease
+
+.visible
+    opacity: 1.0
+
+// Owl Carousel
+.owl-carousel
+    .owl-stage
+        display: flex
+    .owl-stage-outer
+        padding: 0 1px
+        .owl-item
+            .item
+                height: 100%
+
+.owl-dots
+    display: flex
+    align-items: center
+    justify-content: center
+    margin-top: 25px
+    @media only screen and (min-width: 468px)
+        margin-top: 33px
+    @media only screen and (min-width: 1200px)
+        margin-top: 45px
+    button
+        border-radius: 50%
+        background: rgb(32, 45, 55) !important
+        opacity: 0.2
+        width: 8px
+        height: 8px
+        transition: all .3s
+        font-size: 0
+        padding: 0
+        border: none
+        outline: none
+        box-shadow: none
+        margin: 0 8px
+        @media only screen and (min-width: 468px)
+            margin: 0 11px
+        span
+            display: none
+        &.active
+            background: $basecolor !important
+            opacity: 1
+.owl-nav
+    display: flex
+    align-items: center
+    justify-content: center
+    button
+        opacity: 1
+        width: 27px
+        height: 50px
+        padding: 0
+        margin: 0
+        font-size: 0
+        transition: all .3s
+        display: block
+        outline: none
+        outline-offset: none
+        position: absolute
+        top: 50%
+        z-index: 2
+        transform: translateY(-50%)
+        @media only screen and (min-width:1441px)
+            width: 27px
+            height: 83px
+
+        span
+            display: none
+        &.owl-prev
+            left: -45px
+            background: url('../images/lArrow.svg' ) no-repeat center !important
+        &.owl-next
+            right: -45px
+            background: url('../images/rArrow.svg' ) no-repeat center !important
+
+.iti__country.iti__highlight, .country-select .country-list .country.highlight
+    background-color: rgba(58, 134, 31, 0.28) !important
+
+// / CALENDER
+
+.ui-widget-header
+    border: 1px solid $basecolor !important
+    background: $basecolor!important
+    color: #ffffff !important
+    font-weight: bold
+    border-radius: 14px !important
+.ui-widget.ui-widget-content
+    box-shadow: 0px 3px 50px #0000001A !important
+    border-radius: 20px !important
+    border: none !important
+    width: fit-content !important
+    padding: 10px
+.ui-datepicker .ui-datepicker-title
+    font-size: 16px !important
+.ui-datepicker
+    th
+        font-size: 15px !important
+    .ui-icon
+        filter: brightness(22)
+        &:hover
+            background: transparent
+.ui-state-default, .ui-widget-content .ui-state-default
+    border: 1px solid #F7F7F7 !important
+    background: #F7F7F7 !important
+    font-weight: normal
+    color: #454545
+    border-radius: 13px
+    font-size: 14px !important
+    margin: 2px
+    text-align: center !important
+    @media only screen and (min-width:992px)
+        padding: 8px !important
+.ui-state-highlight, .ui-widget-content .ui-state-highlight
+    border: 1px solid $basecolor !important
+    background: $basecolor !important
+    color: #ffffff !important
+    font-size: 14px !important
+.ui-state-active, .ui-widget-content .ui-state-active
+    border: 1px solid $basecolor !important
+    background: $basecolor !important
+    color: #ffffff !important
+
+.bootstrap-select
+    width: 100%
+    height: 100%
+    position: relative
+    .dropdown-toggle
+        cursor: pointer
+        -webkit-user-select: none
+        -moz-user-select: none
+        -ms-user-select: none
+        user-select: none
+        display: flex
+        align-items: center
+        position: relative
+        background: none
+        display: flex
+        align-items: center
+        box-shadow: none
+        outline: none
+        width: 100%
+        height: 100%
+        border: 1px solid #000000
+        border-radius: 0
+        font-size: 12px
+        padding: 5px 10px
+        color: #000000
+        @media only screen and (min-width: 468px)
+            font-size: 14px
+        @media only screen and (min-width: 992px)
+            padding: 5px 12px
+        &:focus
+            outline: 0 !important
+        &::after
+            content: ""
+            background: url( "../images/arrow.svg" ) no-repeat center !important
+            position: absolute
+            right: 0px
+            top: 50%
+            transform: translateY(-50%)
+            width: 8px
+            height: 6px
+            border: none
+        .filter-option
+            height: auto
+    .dropdown-menu
+        top: calc(100% - 12px) !important
+        background: #f3f3f3
+        border-radius: 0
+        border: 0
+        will-change: transform
+        border-bottom-left-radius: 5px
+        border-bottom-right-radius: 5px
+        padding: 0
+        z-index: 99999
+        @media only screen and (min-width: 468px)
+            border-bottom-left-radius: 8px
+            border-bottom-right-radius: 8px
+        .inner
+            background: #f3f3f3
+            box-sizing: border-box
+            display: block
+            width: 100%
+            >*
+                .dropdown-item
+                    cursor: pointer
+                    transition: all .3s
+                    font-size: 12px
+                    padding: 5px 10px
+                    text-transform: uppercase
+                    color: #263948
+                    @media only screen and (min-width: 468px)
+                        font-size: 13px
+                    @media only screen and (min-width: 992px)
+                        padding: 10px 12px
+                    @media only screen and (min-width: 1551px)
+                        font-size: 14px
+                    &:hover
+                        background: $basecolor
+                        color: #fff
+                &:not(:last-of-type)
+                    border-bottom: 1px solid rgb(211, 232, 231)
+                &.selected
+                    .dropdown-item
+                        background: $basecolor
+                        color: #fff
+.select2
+    height: 35px !important
+    background: $white !important
+    border: none !important
+    border-radius: 0 !important
+    padding: 12px 0px !important
+    font-size: 12px !important
+    font-weight: 500 !important
+    display: flex
+    align-items: center
+    width: 100% !important
+    min-width: 140px !important
+    color: #464240 !important
+    border-bottom: 1px solid #464240 !important
+    @media only screen and (min-width: 576px)
+        font-size: 14px
+        height: 40px !important
+    @media only screen and (min-width: 1200px)
+        font-size: 16px
+        padding: 0 !important
+    @media only screen and (min-width: 1441px)
+        font-size: 18px
+    &::placeholder
+        font-size: 12px !important
+        color: #464240 !important
+        font-weight: 500 !important
+        @media only screen and (min-width: 576px)
+            font-size: 14px
+        @media only screen and (min-width: 1200px)
+            font-size: 16px
+        @media only screen and (min-width: 1441px)
+            font-size: 18px
+.selection
+    width: 100% !important
+.select2-selection__rendered
+    width: 100%
+    color: #464240 !important
+    font-weight: 500 !important
+    font-size: 12px
+    font-family: $fontstack1 !important
+    padding: 0 !important
+    @media only screen and (min-width: 576px)
+        font-size: 14px
+    @media only screen and (min-width: 1200px)
+        font-size: 16px
+    @media only screen and (min-width: 1441px)
+        font-size: 18px
+.select2-results__option
+    padding: 10px 7px !important
+    border-bottom: 1px solid #ffffff83 !important
+    font-weight: 500
+    font-size: 12px !important  
+    @media only screen and (min-width: 576px)
+        font-size: 14px
+    @media only screen and (min-width: 1200px)
+        font-size: 16px
+    @media only screen and (min-width: 1441px)
+        font-size: 18px
+.select2-selection__arrow
+    background: url(../images/DownArrow.svg) no-repeat
+    background-size: contain
+    width: 12px
+    height: 8px
+    position: absolute
+    right: 0px
+    top: 0
+    bottom: 0
+    margin: auto
+.select2-dropdown
+    background-color: $basecolor !important
+    border: 1px solid #ffffff !important
+    border-radius: 0px !important
+    box-sizing: border-box
+    display: block
+    position: absolute
+    left: -100000px
+    width: 100%
+    z-index: 99999 !important
+    top: 2px
+    color: $white !important

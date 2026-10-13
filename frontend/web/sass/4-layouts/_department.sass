@@ -1,0 +1,219 @@
+///////// DEPARTMENT PAGE/////
+.departmentPage
+    .container
+        @media only screen and (min-width: 1661px)
+            max-width: 1595px
+        @media only screen and (min-width: 1771px)
+            max-width: 1695px
+    #departmentSec
+        padding: 40px 0
+        @media only screen and (min-width: 768px)
+            padding: 50px 0
+        @media only screen and (min-width: 992px)
+            padding: 60px 0
+        @media only screen and (min-width: 1200px)
+            padding: 70px 0
+        @media only screen and (min-width: 1441px)
+            padding: 90px 0
+        @media only screen and (min-width: 1551px)
+            padding: 100px 0
+        @media only screen and (min-width: 1661px)
+            padding: 135px 0
+        .dFlex
+            display: flex
+            flex-wrap: wrap
+            margin: -7.5px
+            @media only screen and (min-width: 768px)
+                margin: -10px
+            @media only screen and (min-width: 992px)
+                margin: -12px
+            @media only screen and (min-width: 1200px)
+                margin: -15px
+            .item
+                padding: 7.5px
+                width: 100%
+                @media only screen and (min-width: 500px)
+                    width: calc( 100% / 2 )
+                @media only screen and (min-width: 768px)
+                    width: calc( 100% / 3 )
+                    padding: 10px
+                @media only screen and (min-width: 992px)
+                    width: calc( 100% / 4 )
+                    padding: 12px
+                @media only screen and (min-width: 1200px)
+                    padding: 15px
+                .imgBx
+                    position: relative
+                    width: 100%
+                    overflow: hidden
+                    display: block
+                    height: 220px
+                    @media only screen and (min-width: 400px)
+                        height: 230px
+                    @media only screen and (min-width: 992px)
+                        height: 245px
+                    @media only screen and (min-width: 1200px)
+                        height: 300px
+                    @media only screen and (min-width: 1441px)
+                        height: 345px
+                    @media only screen and (min-width: 1661px)
+                        height: 452px
+                    &:hover
+                        .cont
+                            .tle
+                                opacity: 0
+                            .innerCnt
+                                opacity: 1
+                                visibility: visible
+                                overflow-y: scroll
+                                height: 155px
+                                @media only screen and (min-width: 576px)
+                                    height: 155px
+                                @media only screen and (min-width: 768px)
+                                    height: 190px
+                                @media only screen and (min-width: 1200px)
+                                    height: 235px
+                                @media only screen and (min-width: 1441px)
+                                    height: 275px
+                                @media only screen and (min-width: 1551px)
+                                    height: 380px
+                                // height: 380px
+                                // opacity: 1
+                                // visibility: visible
+                                // overflow-y: scroll
+                                // padding-bottom: 15px
+                                // @media only screen and (min-width: 768px)
+                                //     padding-bottom: 20px
+                                // @media only screen and (min-width: 992px)
+                                //     padding-bottom: 25px
+                                // @media only screen and (min-width: 1200px)
+                                //     padding-bottom: 30px
+                                // @media only screen and (min-width: 1441px)
+                                //     padding-bottom: 35px
+                                // @media only screen and (min-width: 1551px)
+                                //     padding-bottom: 40px
+
+                    &::after
+                        content: ""
+                        position: absolute
+                        width: 100%
+                        height: 100%
+                        bottom: 0
+                        left: 0
+                        width: 100
+                        transform: matrix(-1, 0, 0, -1, 0, 0)
+                        background: transparent linear-gradient(180deg, #763813 0%, #76381300 100%) 0% 0% no-repeat padding-box
+                    img
+                        @include imgFit
+                    .cont
+                        position: absolute
+                        z-index: 1
+                        bottom: 0
+                        left: 0
+                        width: 100%
+                        padding: 15px 10px
+                        @media only screen and (min-width: 768px)
+                            padding: 20px 15px
+                        @media only screen and (min-width: 992px)
+                            padding: 25px 20px
+                        @media only screen and (min-width: 1200px)
+                            padding: 30px 25px
+                        @media only screen and (min-width: 1441px)
+                            padding: 30px
+                        .tle
+                            font-size: 14px
+                            color: #ffff
+                            text-align: center
+                            line-height: 1.5
+                            font-weight: 500
+                            transition: all .6s
+                            @media only screen and (min-width: 768px)
+                                font-size: 16px
+                            @media only screen and (min-width: 992px)
+                                font-size: 18px
+                            @media only screen and (min-width: 1200px)
+                                font-size: 20px
+                            @media only screen and (min-width: 1441px)
+                                font-size: 22px
+                            @media only screen and (min-width: 1661px)
+                                font-size: 24px
+                        .innerCnt
+                            height: 0
+                            width: 100%
+                            opacity: 0
+                            visibility: hidden
+                            transition: all .8s
+
+                            .icon
+                                margin-bottom: 10px
+                                width: 35px
+                                height: 35px
+                                @media only screen and (min-width: 768px)
+                                    margin-bottom: 15px
+                                    width: 40px
+                                    height: 40px
+                                @media only screen and (min-width: 992px)
+                                    width: 45px
+                                    height: 45px
+                                @media only screen and (min-width: 1200px)
+                                    margin-bottom: 20px
+                                    width: 50px
+                                    height: 50px
+                                @media only screen and (min-width: 1441px)
+                                    width: 54px
+                                    height: 54px
+                                img
+                                    @include imgFit
+                                    object-fit: contain
+                            .hd
+                                font-size: 16px
+                                color: #ffff
+                                line-height: 1
+                                font-weight: 500
+                                max-width: 219px
+                                margin-bottom: 10px
+                                @media only screen and (min-width: 768px)
+                                    margin-bottom: 15px
+                                    font-size: 17px
+                                @media only screen and (min-width: 992px)
+                                    font-size: 18px
+                                @media only screen and (min-width: 1200px)
+                                    font-size: 20px
+                                    margin-bottom: 20px
+                                @media only screen and (min-width: 1441px)
+                                    font-size: 22px
+                                    margin-bottom: 25px
+                                @media only screen and (min-width: 1661px)
+                                    font-size: 24px
+                            ul
+                                li
+                                    font-size: 14px
+                                    position: relative
+                                    font-weight: 500
+                                    padding-left: 15px
+                                    color: #fff
+                                    @media only screen and (min-width: 768px)
+                                        font-size: 16px
+                                        padding-left: 20px
+                                    @media only screen and (min-width: 1200px)
+                                        padding-left: 24px
+                                        font-size: 18px
+                                    &:not(:last-of-type)
+                                        margin-bottom: 10px
+                                        @media only screen and (min-width: 768px)
+                                            margin-bottom: 12px
+                                        @media only screen and (min-width: 992px)
+                                            margin-bottom: 15px
+                                        @media only screen and (min-width: 1441px)
+                                            margin-bottom: 20px
+
+                                    &::after
+                                        content: ''
+                                        position: absolute
+                                        top: 5px
+                                        left: 0
+                                        background-image: url("../images/arrIcon.svg")
+                                        background-size: contain
+                                        background-repeat: no-repeat
+                                        width: 5px
+                                        height: 9px

@@ -1,0 +1,186 @@
+////////// SEARCH RESULT//////
+.searchresultPage
+    #searchPage
+        padding: 40px 0
+        background: #FBF7F0
+        @media only screen and (min-width: 768px)
+            padding: 55px 0 50px
+        @media only screen and (min-width: 992px)
+            padding: 60px 0 60px
+        @media only screen and (min-width: 1200px)
+            padding: 65px 0 70px
+        @media only screen and (min-width: 1441px)
+            padding: 65px 0 80px
+        @media only screen and (min-width: 1551px)
+            padding: 65px 0 90px
+        @media only screen and (min-width: 1661px)
+            padding: 65px 0 100px
+        .infoBx
+            margin-bottom: 20px
+            @media only screen and (min-width: 768px)
+                margin-bottom: 30px
+            @media only screen and (min-width: 992px)
+                margin-bottom: 40px
+            @media only screen and (min-width: 1200px)
+                margin-bottom: 50px
+            @media only screen and (min-width: 1441px)
+                margin-bottom: 60px
+            @media only screen and (min-width: 1551px)
+                margin-bottom: 75px
+            .tleWrap
+                display: flex
+                flex-wrap: wrap
+                align-items: center
+                justify-content: space-between
+                margin: -5px
+                >*
+                    padding: 5px
+                .tle
+                    font-size: 16px
+                    font-weight: 500
+                    max-width: 500px
+                    margin-bottom: 10px
+                    @media only screen and (min-width: 768px)
+                        font-size: 18px
+                        max-width: 600px
+                        margin-bottom: 15px
+                    @media only screen and (min-width: 992px)
+                        max-width: 700px
+                        font-size: 20px
+                        margin-bottom: 20px
+                    @media only screen and (min-width: 1200px)
+                        max-width: 800px
+                        font-size: 24px
+                        margin-bottom: 25px
+                    @media only screen and (min-width: 1441px)
+                        max-width: 900px
+                        font-size: 26px
+                    @media only screen and (min-width: 1551px)
+                        font-size: 28px
+                .subT
+                    font-weight: 400
+                    font-size: 14px
+                    color: #000
+                    margin-bottom: 10px
+                    @media only screen and (min-width: 768px)
+                        margin-bottom: 15px
+                        font-size: 16px
+                    @media only screen and (min-width: 992px)
+                        font-size: 17px
+                        margin-bottom: 20px
+                    @media only screen and (min-width: 1200px)
+                        font-size: 18px
+                        margin-bottom: 25px
+                    span
+                        color: #763813
+                        font-weight: 500
+                        text-transform: capitalize
+                        padding-left: 3px
+            p
+                max-width: 500px
+                font-size: 13px
+                @media only screen and (min-width: 768px)
+                    max-width: 600px
+                    font-size: 14px
+                @media only screen and (min-width: 992px)
+                    max-width: 700px
+                    font-size: 16px
+                @media only screen and (min-width: 1200px)
+                    max-width: 800px
+                    font-size: 17px
+                @media only screen and (min-width: 1441px)
+                    font-size: 18px
+                    max-width: 900px
+                &:last-of-type
+                    margin-bottom: 0
+        .dFlex
+            display: flex
+            flex-wrap: wrap
+            margin: -7.5px
+            @media only screen and (min-width:768px)
+                margin: -10px -7.5px
+            @media only screen and (min-width:992px)
+                margin: -15px -10px
+            @media only screen and (min-width:1200px)
+                margin: -20px -12px
+            @media only screen and (min-width:1441px)
+                margin: -25px -15px
+            .item
+                padding: 7.5px
+                width: 100%
+                @media only screen and (min-width:350px)
+                    width: calc( 100% / 2 )
+                @media only screen and (min-width:576px)
+                    width: calc( 100% / 3 )
+                @media only screen and (min-width:768px)
+                    padding: 10px 7.5px
+                @media only screen and (min-width:992px)
+                    width: calc( 100% / 4 )
+                    padding: 15px 10px
+                @media only screen and (min-width:1200px)
+                    padding: 20px 12px
+                @media only screen and (min-width:1441px)
+                    padding: 25px 15px
+                .serviceBox
+                    width: 100%
+                    height: 100%
+                    display: block
+                    &:hover
+                        .imgBox
+                            img
+                                transform: scale(1.1)
+                    .imgBox
+                        width: 100%
+                        overflow: hidden
+                        height: auto
+                        @media only screen and (min-width:350px)
+                            height: 225px
+                        @media only screen and (min-width:440px)
+                            height: 300px
+                        @media only screen and (min-width:576px)
+                            height: 260px
+                        @media only screen and (min-width:768px)
+                            height: 270px
+                        @media only screen and (min-width:992px)
+                            height: 300px
+                        @media only screen and (min-width:1200px)
+                            height: 350px
+                        @media only screen and (min-width:1441px)
+                            height: 388px
+                        img
+                            object-position: top
+                            transition: all 0.5s
+                            @include imgFit
+                    .info
+                        padding-top: 10px
+                        @media only screen and (min-width:768px)
+                            padding-top: 15px
+                        @media only screen and (min-width:992px)
+                            padding-top: 20px
+                        @media only screen and (min-width:1200px)
+                            padding-top: 25px
+                        .name
+                            font-weight: 500
+                            color: #763813
+                            line-height: 25px
+                            font-size: 14px
+                            margin-bottom: 5px
+                            @media only screen and (min-width:768px)
+                                font-size: 16px
+                                margin-bottom: 7px
+                            @media only screen and (min-width:992px)
+                                margin-bottom: 10px
+                                font-size: 18px
+                            @media only screen and (min-width:1441px)
+                                font-size: 20px
+
+                        .post
+                            font-weight: 300
+                            color: #464240
+                            font-size: 12px
+                            @media only screen and (min-width:768px)
+                                font-size: 14px
+                            @media only screen and (min-width:992px)
+                                font-size: 15px
+                            @media only screen and (min-width:1200px)
+                                font-size: 16px

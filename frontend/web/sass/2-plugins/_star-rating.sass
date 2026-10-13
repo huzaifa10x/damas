@@ -1,0 +1,44 @@
+.stars
+    cursor: pointer
+    display: flex
+    @media only screen and ( max-width: 576px )
+        margin-bottom: 20px
+    &:hover
+        .star
+            fill: #ffd055 !important
+
+    .star
+
+        fill: #000
+
+        &:hover ~ .star
+
+            fill: #000 !important
+
+    &[data-stars]
+        .star
+            width: 20px
+            fill: #ffd055
+            margin-right: 10px
+            @media only screen and ( min-width: 992px )
+                width: 24px
+
+    &[data-stars="1"]
+        .star:nth-child(1) ~ .star
+            fill: #000
+
+    &[data-stars="2"]
+        .star:nth-child(2) ~ .star
+            fill: #000
+
+    &[data-stars="3"]
+        .star:nth-child(3) ~ .star
+            fill: #000
+
+    &[data-stars="4"]
+        .star:nth-child(4) ~ .star
+            fill: #000
+
+    &[data-stars="5"]
+        .star:nth-child(5) ~ .star
+            fill: #000

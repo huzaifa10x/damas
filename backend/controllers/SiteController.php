@@ -1,0 +1,111 @@
+<?php
+
+namespace backend\controllers;
+
+use backend\models\LoginForm;
+use Yii;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
+use yii\web\Controller;
+use yii\web\Response;
+
+/**
+ * Site controller
+ */
+class SiteController extends Controller
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['login', 'error'],
+                        'allow' => true,
+                    ],
+                    [
+                        'actions' => ['logout', 'index'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'logout' => ['get'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => \yii\web\ErrorAction::class,
+            ],
+        ];
+    }
+
+    /**
+     * Displays homepage.
+     *
+     * @return string
+     */
+    public function actionIndex()
+    {
+         $doctor_count = \common\models\Doctors::find()->where(['status'=>1])->count();
+        $service_count = \common\models\Services::find()->where(['status'=>1])->count();
+        $new_appointment_count = \common\models\AppointmentEnquiry::find()->where(['status'=>0])->count();
+        return $this->render('index',[
+            'doctor_count' =>$doctor_count,
+            'service_count' =>$service_count,
+            'new_appointment_count' =>$new_appointment_count,
+        ]);
+    }
+
+    /**
+     * Login action.
+     *
+     * @return string|Response
+     */
+    public function actionLogin()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $this->layout = 'blank';
+
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return $this->goBack();
+        }
+
+        $model->password = '';
+
+        return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Logout action.
+     *
+     * @return Response
+     */
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
+
+        return $this->goHome();
+    }
+}

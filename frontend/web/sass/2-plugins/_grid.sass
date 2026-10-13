@@ -1,0 +1,49 @@
+.container
+  width: 100%
+  padding-right: 15px
+  padding-left: 15px
+  margin-right: auto
+  margin-left: auto
+  max-width: 100%
+
+  @media only screen and (min-width: 1200px)
+    max-width: 1180px
+    padding: 0
+
+  @media only screen and (min-width: 1351px)
+    max-width: 1280px
+
+  @media only screen and (min-width: 1441px)
+    max-width: 1350px
+
+  // @media only screen and (min-width: 1551px)
+  //   max-width: 1460px
+
+  @media only screen and (max-width: 768px)
+    max-width: none
+
+.row
+  margin: 0 -7px
+  @include display
+  @media only screen and (min-width: 768px)
+    margin: 0 -15px
+
+.Custom_container
+  width: 100%
+  padding: 0 15px
+  @media only screen and (max-width: 992px)
+    max-width: 1050px
+  @media only screen and (min-width: 992px)
+    padding: 0
+    margin-right: auto
+  @media only screen and (min-width: 1200px)
+    width: calc(100% - ((100% - 1180px)/ 2))
+
+  @media only screen and (min-width: 1351px)
+    width: calc(100% - ((100% - 1280px)/ 2))
+
+  @media only screen and (min-width: 1441px)
+    width: calc(100% - ((100% - 1350px)/ 2))
+
+    // @media only screen and (min-width: 1551px)
+    //     width: calc(100% - ((100% - 1450px)/ 2))

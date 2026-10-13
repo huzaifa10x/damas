@@ -1,0 +1,112 @@
+//ERROR_PAGE
+/******************ERROR_PAGE**********************/
+.errorPage
+    #error
+        padding: 40px 0 50px
+        @media only screen and (min-width: 768px)
+            padding: 60px 0 70px
+        @media only screen and (min-width: 992px)
+            padding: 80px 0 90px
+        @media only screen and (min-width: 1441px)
+            padding: 100px 0 120px
+        @media only screen and (min-width: 1551px)
+            padding: 130px 0 190px
+        @media only screen and (max-width: 992px)
+            height: 65vh
+    .container
+        position: relative
+        display: flex
+        align-items: center
+        height: 100%
+
+        .bgImage
+            position: absolute
+            width: 100%
+            height: 100%
+            left: 0
+            top: 0
+            z-index: 0
+            img
+                @include imgFit
+                object-fit: contain
+    .row
+        margin: 0
+    .page_cntnt
+        padding: 40px 0 70px
+        margin: auto
+        @media only screen and (min-width: 468px)
+            padding: 80px 0 120px
+    .head_two
+        font-weight: 500
+        color: #000000
+        @media only screen and (min-width: 468px)
+            margin-bottom: 15px
+            font-size: 26px
+        @media only screen and (min-width: 768px)
+            font-size: 28px
+        @media only screen and (min-width: 992px)
+            font-size: 32px
+        @media only screen and (min-width: 1200px)
+            font-size: 35px
+        @media only screen and (min-width: 1441px)
+            font-size: 40px
+        @media only screen and (min-width: 1551px)
+            font-size: 45px
+
+    .head_three
+        line-height: normal
+        font-weight: 300
+        color: #696868
+        font-size: 18px
+        @media only screen and (min-width: 768px)
+            font-size: 20px
+        @media only screen and (min-width: 992px)
+            font-size: 22px
+        @media only screen and (min-width: 1200px)
+            font-size: 24px
+        @media only screen and (min-width: 1441px)
+            font-size: 26px
+        @media only screen and (min-width: 1551px)
+            font-size: 28px
+        @media only screen and (min-width: 1661px)
+            font-size: 30px
+    p
+        color: #696868
+        margin: 0px
+        text-align: center
+
+    .btnWrap
+        margin-top: 20px
+        @media only screen and (min-width: 768px)
+            margin-top: 25px
+        @media only screen and (min-width: 992px)
+            margin-top: 30px
+        @media only screen and (min-width: 1200px)
+            margin-top: 35px
+        .baseBtn
+            display: flex
+            align-items: center
+            justify-content: space-between
+            background: #F6F0E4
+            padding: 10px 15px
+            width: 160px
+            @media only screen and (min-width: 576px)
+                padding: 12px 15px
+            @media only screen and (min-width: 768px)
+                width: 220px
+                padding: 12px 20px
+            @media only screen and (min-width: 1200px)
+                width: 241px
+                padding: 15px 25px
+            @media only screen and (min-width: 1441px)
+                padding: 25px 30px
+            span
+                font-size: 14px
+                color: #763813
+                text-transform: uppercase
+                font-weight: 500
+                @media only screen and (min-width: 768px)
+                    font-size: 16px
+            span
+                svg
+                    width: 5px
