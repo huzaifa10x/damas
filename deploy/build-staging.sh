@@ -7,6 +7,7 @@
 # Output: ../damas-staging.zip  (code + vendor/, production index.php, no uploads/, no Docker files)
 # Needs on your Mac: php and composer (the same ones you used for `composer install`).
 set -euo pipefail
+trap 'echo; echo "!! Build FAILED at line $LINENO. Copy everything above this line and send it."; exit 1' ERR
 
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$(dirname "$SRC")/damas-staging-build"
@@ -26,13 +27,26 @@ rsync -a "$SRC/" "$OUT/" \
   --exclude '/backend/config/*-local.php' --exclude '/console/config/*-local.php' \
   --exclude '/frontend/web/index*.php' --exclude '/backend/web/index*.php' \
   --exclude '/yii' --exclude '/yii_test' --exclude '/yii_test.bat' \
-  --exclude 'error_log' --exclude '/info.php' --exclude '/composer.lock'
+  --exclude 'error_log' --exclude '/info.php'
 
 cd "$OUT"
 
-echo "==> Installing production dependencies for PHP 8.2 (the server's version)"
-composer config platform.php 8.2.0
-COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --no-interaction --no-progress
+echo "==> Installing production dependencies (no dev packages)"
+command -v composer >/dev/null || { echo "!! composer not found on this Mac"; exit 1; }
+if [ -f composer.lock ]; then
+  # Same package versions as your working local install (vendor/ there was built from this lock file)
+  COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+else
+  composer config platform.php 8.2.0
+  COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --no-interaction --no-progress
+fi
+[ -f vendor/autoload.php ] || { echo "!! vendor/autoload.php was not created"; exit 1; }
+MIN_PHP=$(grep -o "PHP_VERSION_ID >= [0-9]*" vendor/composer/platform_check.php 2>/dev/null | grep -o "[0-9]*$" || echo 0)
+if [ "$MIN_PHP" -gt 0 ]; then
+  MIN_PHP_TXT="$((MIN_PHP / 10000)).$(((MIN_PHP / 100) % 100))"
+else
+  MIN_PHP_TXT="8.2"
+fi
 
 echo "==> Generating production index.php files and config (YII_DEBUG=false)"
 php init --env=Production --overwrite=All >/dev/null
@@ -61,4 +75,5 @@ rm -rf "$OUT"
 
 echo
 echo "Done: $ZIP ($(du -h "$ZIP" | cut -f1))"
+echo "IMPORTANT: set the subdomain to PHP $MIN_PHP_TXT or newer in cPanel → MultiPHP Manager"
 echo "Next: upload it to the subdomain's folder in cPanel and follow deploy/STAGING.md"
