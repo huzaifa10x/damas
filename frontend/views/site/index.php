@@ -21,7 +21,10 @@ $isAr       = ($language === 'ar');
  *   before the CSS is parsed.
  * ---------------------------------------------------------------------------
  */
-$this->registerCssFile($homeUrl . 'lib/owl.carousel-2.3.4.min.css'); // self-hosted (was cdnjs: extra DNS+TLS before first paint)
+/* Above-the-fold CSS for this page is inlined by the layout; the full stylesheets then load without blocking. */
+$this->params['criticalCss'] = 'critical-home.css';
+/* Owl only styles the sliders further down the page → load it without blocking first paint. */
+$this->registerCssFile($homeUrl . 'lib/owl.carousel-2.3.4.min.css', ['media' => 'print', 'onload' => "this.media='all';this.onload=null"]);
 /* Every script in this view is `defer` or waits for DOMContentLoaded/load, so the layout may keep its libraries deferred. */
 $this->params['scriptsDeferSafe'] = true;
 /* Jarallax removed: it forced layout on every scroll tick (Lighthouse: 20 long tasks on desktop). The same effect is done in CSS below. */
@@ -564,24 +567,37 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    /* Each slider is built when its section comes within ~600px of the screen, not all five at once after first paint
+       (that burst was the biggest block of main-thread work on mobile). */
     if ($.fn.owlCarousel) {
+        /* Observe the slider's <section>: Owl hides the slider itself (display:none) until it is initialised,
+           and a hidden element never intersects the viewport. */
+        var near = function (el, fn, margin) {
+            if (!el) return;
+            var target = $(el).closest('section')[0] || el.parentNode;
+            (window.whenNear || function (e, f) { f(); })(target, fn, margin);
+        };
         var $service = $('.serviceSlider');
         wireNav('#service', $service);
-        $service.owlCarousel($.extend({}, owlBase, { rewind: false, loop: false,
-            responsive: { 520: { items: 2, margin: 15 }, 768: { items: 3, margin: 15 }, 992: { items: 3, margin: 15 }, 1441: { items: 4, margin: 22 } } }));
+        near($service[0], function () {
+            $service.owlCarousel($.extend({}, owlBase, { rewind: false, loop: false,
+                responsive: { 520: { items: 2, margin: 15 }, 768: { items: 3, margin: 15 }, 992: { items: 3, margin: 15 }, 1441: { items: 4, margin: 22 } } }));
+        }, '600px');
 
         var $doctor = $('.doctorSlider');
         wireNav('#doctors', $doctor);
-        $doctor.owlCarousel($.extend({}, owlBase, { autoplay: true, lazyLoad: true }));
+        near($doctor[0], function () { $doctor.owlCarousel($.extend({}, owlBase, { autoplay: true, lazyLoad: true })); }, '600px');
 
-        $('.testimonialSlider').owlCarousel(owlBase);
-        $('.reviewSlider').owlCarousel(owlBase);
+        near($('.testimonialSlider')[0], function () { $('.testimonialSlider').owlCarousel(owlBase); }, '600px');
+        near($('.reviewSlider')[0], function () { $('.reviewSlider').owlCarousel(owlBase); }, '600px');
 
-        $('.insuranceSlider').owlCarousel({
-            loop: true, autoplay: true, smartSpeed: 500, autoplayTimeout: 2000, autoplayHoverPause: true,
-            responsiveClass: true, nav: true, dots: false, rtl: rtlVal, margin: 15,
-            responsive: { 0: { items: 3 }, 578: { items: 4 }, 768: { items: 5 }, 1200: { items: 5, margin: 20 } }
-        });
+        near($('.insuranceSlider')[0], function () {
+            $('.insuranceSlider').owlCarousel({
+                loop: true, autoplay: true, smartSpeed: 500, autoplayTimeout: 2000, autoplayHoverPause: true,
+                responsiveClass: true, nav: true, dots: false, rtl: rtlVal, margin: 15,
+                responsive: { 0: { items: 3 }, 578: { items: 4 }, 768: { items: 5 }, 1200: { items: 5, margin: 20 } }
+            });
+        }, '600px');
     }
 
     /* ---- Parallax on #appointment: passive scroll listener, one transform per frame, reads batched in rAF (replaces Jarallax) ---- */

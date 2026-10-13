@@ -104,11 +104,25 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
     <!--<script async src="https://www.googletagmanager.com/gtag/js?id=G-E74FZLYF77"></script>-->
     <!--<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-E74FZLYF77');</script>-->
 
-    <!-- CRITICAL CSS: render-blocking on purpose, ONE copy each -->
+    <?php
+    /*
+     * Main stylesheets (~860 KB: bootstrap + app.min.css + style.css). Pages that ship an above-the-fold CSS file
+     * (the view sets $this->params['criticalCss'], e.g. the homepage) get it INLINED, and the full CSS arrives as ONE
+     * combined file that does not block first paint. Every other page — or any page whose critical file is out of
+     * date (see frontend/components/CriticalCss.php) — loads the stylesheets render-blocking as before.
+     * Regenerate after changing app.min.css / style.css / the homepage markup: tools/critical-css/README.md
+     */
+    $critical = !empty($this->params['criticalCss']) ? \frontend\components\CriticalCss::prepare($this->params['criticalCss']) : null;
+    ?>
+    <?php if ($critical): ?>
+    <style id="critical-css"><?= $critical['css'] ?></style>
+    <link rel="stylesheet" href="<?= $critical['bundleUrl'] ?>" media="print" onload="this.media='all';this.onload=null">
+    <noscript><link rel="stylesheet" href="<?= $critical['bundleUrl'] ?>"></noscript>
+    <?php else: ?>
     <link rel="stylesheet" href="<?= $homeUrl ?>lib/bootstrap-5.3.2.min.css">
-    <!-- app.min.css is loaded HERE ONLY. Remove 'css/app.min.css' from AppAsset::$css or it is downloaded twice (it was). -->
-    <link rel="stylesheet" href="<?= $homeUrl ?>css/app.min.css?v=<?= @filemtime(Yii::getAlias('@webroot/css/app.min.css')) ?: 1 ?>" id="AppStyle">
+    <link rel="stylesheet" href="<?= $homeUrl ?>css/app.min.css?v=<?= @filemtime(Yii::getAlias('@webroot/css/app.min.css')) ?: 1 ?>">
     <link rel="stylesheet" href="<?= $homeUrl ?>css/style.css?v=<?= @filemtime(Yii::getAlias('@webroot/css/style.css')) ?: 1 ?>">
+    <?php endif; ?>
 
     <!-- Self-hosted body font: preload the regular weight so text does not wait for the 626 KB CSS to discover it -->
     <link rel="preload" href="<?= $homeUrl ?>fonts/Salzburg-Serial-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -686,8 +700,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (window.LazyLoad) { new LazyLoad({}); }
 
-    if ($.fn.select2) {
-        $("select:not(.selectpicker)").select2({
+    /* Run fn once, when el comes within `margin` of the viewport (or right away if IntersectionObserver is missing).
+       Used to keep widget setup (select2, datepickers, sliders) out of the first seconds after the page paints. */
+    window.whenNear = function (el, fn, margin) {
+        if (!el) return;
+        if (!('IntersectionObserver' in window)) { fn(); return; }
+        var io = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) { io.disconnect(); fn(); }
+        }, { rootMargin: (margin || '400px') + ' 0px' });
+        io.observe(el);
+    };
+
+    function initSelect2(scope) {
+        if (!$.fn.select2) return;
+        $(scope).find("select:not(.selectpicker)").not('.select2-hidden-accessible').select2({
             minimumResultsForSearch: Infinity,
             theme: "bootstrap-5",
             containerCssClass: "select2--small",
@@ -695,9 +721,16 @@ document.addEventListener('DOMContentLoaded', function () {
             dropdownCssClass: "select2--small"
         });
     }
+    /* select2 per form, when that form approaches the screen (modal forms: when the modal opens) */
+    document.querySelectorAll('form').forEach(function (form) {
+        if (form.closest('.modal')) return;
+        if (form.querySelector('select:not(.selectpicker)')) whenNear(form, function () { initSelect2(form); });
+    });
+    initSelect2($('select:not(.selectpicker)').filter(function () { return !$(this).closest('form').length; }).parent());
 
-    /* Booking modal: init datepicker + lazy-load reCAPTCHA on first open only (window.loadRecaptcha is defined above) */
+    /* Booking modal: init select2 + datepicker + lazy-load reCAPTCHA on first open only (window.loadRecaptcha is defined above) */
     $('#bookingModal').on('show.bs.modal', function () {
+        initSelect2(this);
         window.loadRecaptcha();
     }).on('shown.bs.modal', function () {
         if (window.flatpickr) {
@@ -708,9 +741,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
-    if (window.flatpickr && document.getElementById('eventDate')) {
-        flatpickr("#eventDate", { dateFormat: "F, d Y", disable: [{ from: "1700-01-01", to: "1800-01-01" }] });
-    }
+    whenNear(document.getElementById('eventDate'), function () {
+        if (window.flatpickr) flatpickr("#eventDate", { dateFormat: "F, d Y", disable: [{ from: "1700-01-01", to: "1800-01-01" }] });
+    });
 
     /* Language switch */
     $('.language-change').on('click', function (e) {
