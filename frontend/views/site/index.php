@@ -30,6 +30,11 @@ $this->params['scriptsDeferSafe'] = true;
 /* Jarallax removed: it forced layout on every scroll tick (Lighthouse: 20 long tasks on desktop). The same effect is done in CSS below. */
 /* Hero video overlays the <picture> (which defines the box). Without this the deferred src attach resized the video
    after first paint and shifted the whole page — desktop CLS 1.8. */
+/* Hero: show ONLY the active slide (plus the one sliding in/out). app.min.css sets every .carousel-item to
+   display:flex, which overrides Bootstrap's display:none — all four slides were drawn stacked, the LAST one on top:
+   visitors saw slide 4's photo under slide 1's caption, all four images downloaded on load, and Lighthouse measured
+   slide 4 (lazy, low priority) as the LCP. Printed after the main CSS, same specificity → wins. */
+$this->registerCss('#MainBanner .carousel-inner .carousel-item{display:none}#MainBanner .carousel-inner .carousel-item.active,#MainBanner .carousel-inner .carousel-item-next,#MainBanner .carousel-inner .carousel-item-prev{display:flex}');
 $this->registerCss('#MainBanner .imBox{position:relative}#MainBanner .imBox video.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;margin:0;display:block}#MainBanner .imBox video.hero-video:not([src]){visibility:hidden}');
 $this->registerCss('#appointment{position:relative;overflow:hidden;isolation:isolate}#appointment .parallax-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;z-index:-1}@media (min-width:1024px) and (hover:hover){#appointment .parallax-img{height:130%;top:-15%;will-change:transform}}');
 
@@ -77,7 +82,9 @@ $bookImage     = $isAr ? About::getValue('book_an_appointment_image_arabic', $la
 </style>
 
 <div id="pageWrapper">
-    <section id="MainBanner" class="carousel slide" data-bs-ride="carousel" data-bs-touch="false">
+    <!-- No data-bs-ride: auto-rotation starts after the first interaction or 8 s after load (see script below).
+         Rotating during load made a later slide the LCP element (lazy, low priority) instead of the preloaded first slide. -->
+    <section id="MainBanner" class="carousel slide" data-bs-touch="false">
         <div class="carousel-inner">
             <?php if (!empty($sliders)): $i = 0; foreach ($sliders as $slider): $isFirst = ($i === 0);
                 $desktopImg = $homeUrl . 'uploads/home-banners/' . ($isAr ? $slider->desktop_image_arabic : $slider->desktop_image);
@@ -500,6 +507,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ---- Reveal animations (animate.css v4 uses the animate__ prefix, so WOW must be told) ---- */
     if (window.WOW) { new WOW({ animateClass: 'animate__animated' }).init(); }
+
+    /* ---- Hero auto-rotation: only after the page has loaded and settled ----
+       Starts on the first scroll/touch/key/mouse move, or 8 s after window load, whichever comes first.
+       Until then slide 1 (preloaded, high priority) is the only hero image on screen, so it stays the LCP element. */
+    (function () {
+        var hero = document.getElementById('MainBanner');
+        if (!hero || !window.bootstrap || !bootstrap.Carousel) return;
+        var started = false, events = ['scroll', 'touchstart', 'keydown', 'mousemove', 'click'];
+        function start() {
+            if (started) return; started = true;
+            /* Fetch the other slides now (they are lazy and hidden), so each is ready before it slides in */
+            hero.querySelectorAll('img[loading="lazy"]').forEach(function (img) { img.loading = 'eager'; });
+            events.forEach(function (ev) { window.removeEventListener(ev, start); });
+            bootstrap.Carousel.getOrCreateInstance(hero, { interval: 5000, ride: 'carousel' }).cycle();
+        }
+        events.forEach(function (ev) { window.addEventListener(ev, start, { passive: true, once: true }); });
+        if (document.readyState === 'complete') { setTimeout(start, 8000); }
+        else { window.addEventListener('load', function () { setTimeout(start, 8000); }); }
+    })();
 
     /* ---- Hero swipe ---- */
     if ($.fn.swipe) {
