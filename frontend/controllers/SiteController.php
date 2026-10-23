@@ -475,6 +475,7 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $our_history = \common\models\OurHistory::find()->where(['status' => 1])->orderBy(['year' => SORT_ASC])->all();
         $meta_tags = \common\models\MetaTags::findOne(2);
         $banner = \common\models\Banners::findOne(1);
+           $insurances = \common\models\Insurance::find()->where(['status' => 1])->all();
         $this->view->title = $meta_tags->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
@@ -483,6 +484,7 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
                     'our_history' => $our_history,
                     'banner' => $banner,
                     'model' => $model,
+                    'insurances' => $insurances,
                     'services' => $services,
                     'genders' => $genders,
         ]);

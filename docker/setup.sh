@@ -7,7 +7,7 @@ cd /var/www/html
 
 echo "==> Installing PHP dependencies (vendor/)"
 git config --global --add safe.directory /var/www/html || true
-COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --prefer-dist
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --prefer-dist --no-security-blocking
 
 echo "==> Generating index.php and *-local.php files (Yii 'init', Development)"
 if [ ! -f frontend/web/index.php ]; then
