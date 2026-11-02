@@ -34,17 +34,28 @@ class AppointmentEnquiry extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'email', 'phone_number', 'service','age','gender'], 'required'],
+            [['name', 'email', 'phone_number', 'service'], 'required'],
             [['email'], 'email'],
-            [['service','status','age','gender'], 'integer'],
+             [['service', 'fk_appointment_department', 'status'], 'integer'],
             [['appointment_date', 'appointment_time', 'created_at', 'updated_at','message'], 'safe'],
-            ['message', 'match', 'pattern' => '/^[a-zA-Z0-9\s.,!?\'"()-]+$/', 'message' => 'The input can only contain letters, numbers, spaces, and common punctuation.'],
+            // ['message', 'match', 'pattern' => '/^[a-zA-Z0-9\s.,!?\'"()-]+$/', 'message' => 'The input can only contain letters, numbers, spaces, and common punctuation.'],
             [['name', 'email', 'page_url'], 'string', 'max' => 255],
             [['phone_number'], 'string', 'max' => 15],
             ['name', 'match', 'pattern' => '/^[a-zA-Z\s]+$/', 'message' => 'Only letters and spaces are allowed.'],
             ['phone_number', 'match', 'pattern' => '/^[0-9+ -]{10,15}$/', 'message' => 'Only numbers, plus (+), hyphen (-), a minimum length of 10 characters and a maximum length of 15 characters are allowed.'],
         ];
     }
+
+
+public function getAppointmentDepartment()
+{
+    return $this->hasOne(Departments::class, ['id' => 'fk_appointment_department']);
+}
+
+public function getAppointmentService()
+{
+    return $this->hasOne(Services::class, ['id' => 'service']);
+}
 
     /**
      * {@inheritdoc}
@@ -57,6 +68,7 @@ class AppointmentEnquiry extends \yii\db\ActiveRecord
             'email' => 'Email',
             'phone_number' => 'Phone Number',
             'service' => 'Department',
+            'services' => 'Services',
             'appointment_date' => 'Appointment Date',
             'appointment_time' => 'Appointment Time',
             'page_url' => 'Page Url',

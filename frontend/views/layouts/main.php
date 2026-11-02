@@ -33,7 +33,7 @@ $homeUrl    = Yii::$app->homeUrl;
  * invalidated from backend/config/bootstrap.php), 24h at most.
  * ---------------------------------------------------------------------------
  */
-$layout = Yii::$app->cache->getOrSet('layout_data_v2', function () {
+$layout = Yii::$app->cache->getOrSet('layout_data_v3', function () use ($language) {
     $sortExpr = new \yii\db\Expression('-sort_order DESC, sort_order ASC');
 
     $departments = Departments::find()->where(['status' => 1])->orderBy([$sortExpr])->all();
@@ -44,19 +44,49 @@ $layout = Yii::$app->cache->getOrSet('layout_data_v2', function () {
         $servicesByDept[$s->department][] = $s;
     }
 
+    $departmentNameAttribute = $language === 'ar' ? 'department_name_arabic' : 'department_name';
+    $departmentOptions = ArrayHelper::map($departments, 'id', $departmentNameAttribute);
+
+    $activeServices = Services::find()
+        ->where(['status' => 1])
+        ->orderBy(['service_name' => SORT_ASC])
+        ->all();
+
+    $serviceOptionsByDepartment = [];
+    foreach ($activeServices as $service) {
+        $serviceName = $language === 'ar' ? $service->service_name_arabic : $service->service_name;
+        $serviceOptionsByDepartment[$service->department][] = [(int) $service->id, $serviceName];
+    }
+
     return [
-        'departments'    => $departments,
-        'servicesByDept' => $servicesByDept,
-        'genders'        => Genders::find()->where(['status' => 1])->all(),
-        'contact'        => ContactUs::findOne(1),
+        'departments'                => $departments,
+        'servicesByDept'             => $servicesByDept,
+        'departmentOptions'          => $departmentOptions,
+        'serviceOptionsByDepartment' => $serviceOptionsByDepartment,
+        'contact'                    => ContactUs::findOne(1),
     ];
 }, \common\components\ContentCache::DURATION, \common\components\ContentCache::dependency());
 
-$departments    = $layout['departments'];
-$servicesByDept = $layout['servicesByDept'];
-$contact_data   = $layout['contact'];
-$service_list   = ArrayHelper::map($departments, 'id', $isAr ? 'department_name_arabic' : 'department_name');
-$genders        = ArrayHelper::map($layout['genders'], 'id', $isAr ? 'gender_arabic' : 'gender');
+$departments                = $layout['departments'];
+$servicesByDept             = $layout['servicesByDept'];
+$departmentOptions          = $layout['departmentOptions'];
+$serviceOptionsByDepartment = $layout['serviceOptionsByDepartment'];
+$contact_data               = $layout['contact'];
+$service_list               = ArrayHelper::map($departments, 'id', $isAr ? 'department_name_arabic' : 'department_name');
+// $genders                    = ArrayHelper::map($layout['genders'], 'id', $isAr ? 'gender_arabic' : 'gender');
+
+// Fetch active services grouped by department
+$activeServices = \common\models\Services::find()
+    ->where(['status' => 1])
+    ->orderBy(['service_name' => SORT_ASC])
+    ->all();
+
+$serviceOptionsByDepartment = [];
+foreach ($activeServices as $service) {
+    $serviceName = $language === 'ar' ? $service->service_name_arabic : $service->service_name;
+    $serviceOptionsByDepartment[$service->department][] = [(int) $service->id, $serviceName];
+}
+
 
 $session        = Yii::$app->session;
 $successMessage = $session->getFlash('success');
@@ -195,7 +225,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
 
         <!-- Utility Bar Start -->
         <section class="HeaderMenu  d-none d-lg-block" style="background-color:#814826;">
-            <div class="container py-3 shadow-none">
+            <div class="container py-1 lg:py-3 shadow-none">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                     <!-- Left Utility Links / Info -->
                     <div class="utility-left d-flex align-items-center gap-3">
@@ -225,7 +255,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
 
                     <div class="lftSec">
                         <a href="<?= Url::to(['site/index', 'language' => $language]) ?>" class="LogoSec" aria-label="logo">
-                            <img src="<?= $homeUrl ?>images/logo.svg" alt="Damas Logo" width="160" height="60">
+                            <img src="<?= $homeUrl ?>images/logo.svg" alt="Damas Logo">
                         </a>
                     </div>
 
@@ -315,7 +345,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                                                                                 </div>
                                                                                                 <div class="item">
                                                                                                     <div class="contactBx">
-                                                                                                        <div class="imgBxBg">
+                                                                                                        <div class="imgBoxBg">
                                                                                                             <img src="<?= $homeUrl ?>images/iconLg.svg" alt="Phone Number" loading="lazy">
                                                                                                         </div>
                                                                                                         <a href="tel:<?= $contact_data->phone1 ?>" target="_blank" class="callBtn"><?= $contact_data->phone1 ?></a>
@@ -360,7 +390,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                                 </div>
                                             </div>
 
-                                            
+
                                             <?php foreach (
                                                 [
                                                     ['site/our-doctors', 'our_doctors', ['site/our-doctors', 'site/doctor-details']],
@@ -375,8 +405,8 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                                         </a>
                                                     </div>
                                                 </div>
-                                            <?php endforeach; ?>  
-                                            
+                                            <?php endforeach; ?>
+
                                         </div>
                                     </div>
                                 </div>
@@ -386,7 +416,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                         <div class="sidemenus">
                             <ul>
                                 <!-- Book an Appointment Header Button -->
-                              
+
 
                                 <li class="language">
                                     <?php if ($isAr): ?>
@@ -401,24 +431,24 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                         </a>
                                     <?php endif; ?>
                                 </li>
-                               
-                                  <li class="appointment-btn-item d-none d-lg-block">
-                                  <button href="#bookingModal" data-bs-toggle="modal" data-bs-target="#bookingModal" class=" hoveranim" style="padding:10px 20px; margin-left: 30px; background-color:#D8B373;">
+
+                                <li class="appointment-btn-item d-none d-lg-block">
+                                    <button href="#bookingModal" data-bs-toggle="modal" data-bs-target="#bookingModal" class="navbarbuton hoveranim">
                                         <span><?= Words::getValue($language, 'book_an_appointment') ?></span>
-                                                                                                    </button>
+                                    </button>
                                 </li>
                             </ul>
-                                              <div class="MenuIcon">
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#HeaderPOP" aria-label="Menu">
-                        <span></span><span></span><span></span>
-                    </button>
-                </div>
+                            <div class="MenuIcon">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#HeaderPOP" aria-label="Menu">
+                                    <span></span><span></span><span></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                 </div>
 
-               
+
             </div>
         </section>
     </header>
@@ -520,10 +550,10 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                 <button type="button"><?= $isAr ? 'اشترك' : 'Subscribe' ?> <span aria-hidden="true">→</span></button>
                             </div>
                         </div>
-                       
-                            <div class="footer-newsletter__image" aria-hidden="true">
-                                <img src="<?= $homeUrl ?>uploads/doctors/doctor_transparent.png" alt="" loading="lazy">
-                            </div>
+
+                        <div class="footer-newsletter__image" aria-hidden="true">
+                            <img src="<?= $homeUrl ?>uploads/doctors/doctor_transparent.png" alt="" loading="lazy">
+                        </div>
                     </div>
 
                     <div class="site-footer__main">
@@ -536,35 +566,42 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                             </p>
                             <h2 class="site-footer__heading"><?= Words::getValue($language, 'contact') ?></h2>
                             <ul class="site-footer__contact">
-                                    <li>
-                                        <span class="site-footer__icon" aria-hidden="true">⚲</span>
-                                        <a href="<?= $contact_data->location_link ?>" target="_blank" rel="noopener">
-                                            <?= Html::encode($isAr ? $contact_data->address_arabic : $contact_data->address) ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <span class="site-footer__icon" aria-hidden="true">☎</span>
-                                        <a href="tel:<?= Html::encode($contact_data->phone1) ?>">
-                                            <span><?= Html::encode($contact_data->phone1) ?></span>
-                                            <?php if (!empty($contact_data->phone_no1_description)): ?><small><?= Html::encode($contact_data->phone_no1_description) ?></small><?php endif; ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <span class="site-footer__icon" aria-hidden="true">
-                                            <svg fill="#ffffff" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" stroke=""><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path><path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path></g></svg>
-                                        </span>
-                                        <a href="https://api.whatsapp.com/send?phone=+97165067444&text=Hello%20Damas,%20I%20would%20like%20to%20book%20an%20appointment">
-                                           Whatsapp Now on: +971 650 67444
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <span class="site-footer__icon" aria-hidden="true">✉</span>
-                                        <a href="mailto:<?= Html::encode($contact_data->email) ?>"><?= Html::encode($contact_data->email) ?></a>
-                                    </li>
+                                <li>
+                                    <span class="site-footer__icon" aria-hidden="true">⚲</span>
+                                    <a href="<?= $contact_data->location_link ?>" target="_blank" rel="noopener">
+                                        <?= Html::encode($isAr ? $contact_data->address_arabic : $contact_data->address) ?>
+                                    </a>
+                                </li>
+                                <li>
+                                    <span class="site-footer__icon" aria-hidden="true">☎</span>
+                                    <a href="tel:<?= Html::encode($contact_data->phone1) ?>">
+                                        <span><?= Html::encode($contact_data->phone1) ?></span>
+                                        <?php if (!empty($contact_data->phone_no1_description)): ?><small><?= Html::encode($contact_data->phone_no1_description) ?></small><?php endif; ?>
+                                    </a>
+                                </li>
+                                <li>
+                                    <span class="site-footer__icon" aria-hidden="true">
+                                        <svg fill="#ffffff" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" stroke="">
+                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                            <g id="SVGRepo_iconCarrier">
+                                                <path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path>
+                                                <path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path>
+                                            </g>
+                                        </svg>
+                                    </span>
+                                    <a href="https://api.whatsapp.com/send?phone=+97165067444&text=Hello%20Damas,%20I%20would%20like%20to%20book%20an%20appointment">
+                                        Whatsapp Now on: +971 650 67444
+                                    </a>
+                                </li>
+                                <li>
+                                    <span class="site-footer__icon" aria-hidden="true">✉</span>
+                                    <a href="mailto:<?= Html::encode($contact_data->email) ?>"><?= Html::encode($contact_data->email) ?></a>
+                                </li>
                             </ul>
-                              <button href="#bookingModal" data-bs-toggle="modal" data-bs-target="#bookingModal"  style="margin-top: 20px;padding:10px 20px; margin-left: 30px; background-color:#D8B373;">
-                                        <span><?= Words::getValue($language, 'book_an_appointment') ?></span>
-                                                                                                    </button>
+                            <button href="#bookingModal" data-bs-toggle="modal" data-bs-target="#bookingModal" style="margin-top: 20px;padding:10px 20px; margin-left: 30px; background-color:#D8B373;">
+                                <span><?= Words::getValue($language, 'book_an_appointment') ?></span>
+                            </button>
                         </div>
 
                         <nav class="site-footer__column" aria-label="<?= $isAr ? 'الأقسام' : 'Department' ?>">
@@ -572,13 +609,13 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                             <ul>
                                 <?php foreach (array_slice($departments, 0, 6) as $department): ?>
                                     <li><a href="<?= Url::to(['site/department-details', 'language' => $language, 'slug' => $department->canonical_name]) ?>">
-                                        <?= Html::encode($isAr ? $department->department_name_arabic : $department->department_name) ?></a>
+                                            <?= Html::encode($isAr ? $department->department_name_arabic : $department->department_name) ?></a>
                                     </li>
                                 <?php endforeach; ?>
 
                                 <li><a href="<?= Url::to(['site/departments', 'language' => $language]) ?>"><?= Words::getValue($language, 'department') ?></a></li>
                                 <li><a href="<?= Url::to(['site/offers', 'language' => $language]) ?>">Our Offers</a></li>
-                            
+
                             </ul>
                         </nav>
 
@@ -610,40 +647,69 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                     <div class="site-footer__bottom">
                         <p class="text-white small"><?= Words::getValue($language, 'copyright') ?> © <?= date('Y') ?> <?= Words::getValue($language, 'copyright_description') ?></p>
                         <div class="socialBx">
-                                            <ul>
-                                                <?php if ($contact_data->facebook_link != ''): ?>
-                                                <li><a href="<?= $contact_data->facebook_link ?>" target="_blank" rel="noopener" class="links" aria-label="Facebook"><div class="icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13.247" fill="#fff" height="23.339" viewBox="0 0 13.247 23.339"><path d="M9.929,5.777c.032-.036.181-.153.766-.153h1.919A1.133,1.133,0,0,0,13.746,4.49V1.136A1.134,1.134,0,0,0,12.616,0L9.766,0A5.866,5.866,0,0,0,5.441,1.678,6.159,6.159,0,0,0,3.812,6.091V7.9H1.632A1.133,1.133,0,0,0,.5,9.032v3.612a1.133,1.133,0,0,0,1.132,1.132H3.812v8.43a1.133,1.133,0,0,0,1.132,1.132H8.682a1.133,1.133,0,0,0,1.132-1.132v-8.43H12.48a1.133,1.133,0,0,0,1.132-1.132V9.032a1.136,1.136,0,0,0-.582-.99,1.15,1.15,0,0,0-.56-.142H9.814V6.471c0-.466.063-.634.115-.694Zm0,0" transform="translate(-0.5 0)"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                                <?php if ($contact_data->instagram_link != ''): ?>
-                                                <li><a href="<?= $contact_data->instagram_link ?>" target="_blank" rel="noopener" class="links" aria-label="Instagram"><div class="icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="23.72" height="23.72" viewBox="0 0 23.72 23.72"><path d="M17.795,0H5.935A5.948,5.948,0,0,0,0,5.93V17.79a5.948,5.948,0,0,0,5.93,5.93h11.86a5.948,5.948,0,0,0,5.93-5.93V5.93A5.948,5.948,0,0,0,17.795,0Zm3.953,17.79a3.958,3.958,0,0,1-3.953,3.953H5.935A3.958,3.958,0,0,1,1.982,17.79V5.93A3.958,3.958,0,0,1,5.935,1.977h11.86A3.957,3.957,0,0,1,21.748,5.93V17.79Z" transform="translate(-0.005 0)"/><ellipse cx="1.482" cy="1.482" rx="1.482" ry="1.482" transform="translate(16.802 3.953)"/><path d="M108.335,102.4a5.93,5.93,0,1,0,5.93,5.93A5.929,5.929,0,0,0,108.335,102.4Zm0,9.884a3.953,3.953,0,1,1,3.953-3.954A3.953,3.953,0,0,1,108.335,112.284Z" transform="translate(-96.475 -96.47)"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                                <?php if ($contact_data->youtube_link != ''): ?>
-                                                <li><a href="<?= $contact_data->youtube_link ?>" target="_blank" rel="noopener" class="links" aria-label="YouTube"><div class="icon" id="youtube">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="30.018" height="21.692" viewBox="0 0 30.018 21.692"><path d="M15.006,22.192H15c-.906-.006-8.913-.079-11.182-.693A4.639,4.639,0,0,1,.552,18.237,34.047,34.047,0,0,1,0,11.375,34.688,34.688,0,0,1,.55,4.461l0-.006A4.737,4.737,0,0,1,3.812,1.171l.012,0C6.067.578,14.091.506,15,.5h.016c.908.006,8.937.079,11.185.694A4.638,4.638,0,0,1,29.46,4.451a33.031,33.031,0,0,1,.553,6.95,34.141,34.141,0,0,1-.55,6.852l0,.006a4.64,4.64,0,0,1-3.266,3.263l-.006,0c-2.243.589-10.266.661-11.174.668h-.008ZM2.817,5.062a33.545,33.545,0,0,0-.472,6.3v.031a31.521,31.521,0,0,0,.472,6.239,2.287,2.287,0,0,0,1.61,1.6c1.674.453,8.2.6,10.579.612,2.39-.017,8.921-.155,10.583-.59a2.288,2.288,0,0,0,1.607-1.6,31.629,31.629,0,0,0,.472-6.239c0-.012,0-.025,0-.037A30.528,30.528,0,0,0,27.2,5.07v0a2.288,2.288,0,0,0-1.611-1.608c-1.658-.453-8.19-.6-10.579-.612-2.388.017-8.913.155-10.58.589a2.352,2.352,0,0,0-1.61,1.628ZM12.018,16.094V6.6l8.208,4.749Zm0,0" transform="translate(0.002 -0.5)"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                                <?php if ($contact_data->twitter_link != ''): ?>
-                                                <li><a href="<?= $contact_data->twitter_link ?>" target="_blank" rel="noopener" class="links" aria-label="X"><div class="icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="21.407" height="20.793" viewBox="0 0 21.407 20.793"><path d="M24.711,8.381,31.921,0H30.213l-6.26,7.277L18.952,0H13.185l7.561,11-7.561,8.789h1.709L21.5,12.108l5.281,7.685h5.767L24.711,8.381Zm-2.34,2.72-.766-1.1-6.1-8.719h2.624l4.919,7.037.766,1.1,6.395,9.146H27.589L22.371,11.1Z" transform="translate(-12.095 0.5)" stroke-width="1"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                                <?php if ($contact_data->threads_link != ''): ?>
-                                                <li><a href="<?= $contact_data->threads_link ?>" target="_blank" rel="noopener" class="links" aria-label="Threads"><div class="icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="23.158" height="26.396" viewBox="0 0 23.158 26.396"><path d="M43.186,26.4h-.008c-3.938-.027-6.966-1.325-9-3.86-1.811-2.256-2.744-5.395-2.776-9.328v-.019c.031-3.934.965-7.072,2.776-9.328,2.033-2.535,5.062-3.834,9-3.86h.015A12.149,12.149,0,0,1,50.7,2.306a11.108,11.108,0,0,1,3.86,6.013l-2.243.626C51.1,4.59,48.032,2.364,43.185,2.329c-3.2.023-5.619,1.029-7.192,2.989C34.52,7.153,33.759,9.8,33.731,13.2c.029,3.394.79,6.045,2.262,7.879,1.573,1.96,3.992,2.966,7.192,2.989,2.884-.021,4.793-.693,6.38-2.248a4.724,4.724,0,0,0,1.2-5.276,4.238,4.238,0,0,0-1.8-1.923,7.266,7.266,0,0,1-1.413,3.6,5.383,5.383,0,0,1-4.1,1.969A6.037,6.037,0,0,1,39.87,19.3a4.125,4.125,0,0,1-.466-6.649,6.5,6.5,0,0,1,3.94-1.419,15.076,15.076,0,0,1,3.321.157,3.824,3.824,0,0,0-.822-1.932,3.318,3.318,0,0,0-2.6-.98h-.032a3.452,3.452,0,0,0-2.994,1.451l-1.933-1.3a5.715,5.715,0,0,1,4.926-2.48h.048c3.514.022,5.607,2.171,5.815,5.925.12.05.237.1.353.157A6.814,6.814,0,0,1,52.9,15.609a7.038,7.038,0,0,1-1.7,7.874c-2.032,1.99-4.5,2.889-8,2.913h-.007Zm1.1-12.859c-.266,0-.536.008-.812.024-2.02.114-3.279,1.039-3.207,2.357.075,1.38,1.6,2.022,3.061,1.943,1.347-.072,3.1-.6,3.394-4.081a11.7,11.7,0,0,0-2.435-.242Z" transform="translate(-31.403)"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                                <?php if ($contact_data->linkedin_link != ''): ?>
-                                                <li><a href="<?= $contact_data->linkedin_link ?>" target="_blank" rel="noopener" class="links" aria-label="LinkedIn"><div class="icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22.755" height="21.749" viewBox="0 0 22.755 21.749"><path d="M2.759,0A2.542,2.542,0,1,0,2.7,5.071h.032A2.543,2.543,0,1,0,2.759,0"/><rect width="4.878" height="14.675" transform="translate(0.288 7.074)"/><path d="M230.273,189.108c-2.631,0-4.4,2.473-4.4,2.473v-2.128H221v14.675h4.878v-8.195a3.343,3.343,0,0,1,.161-1.19,2.67,2.67,0,0,1,2.5-1.784c1.765,0,2.471,1.346,2.471,3.318v7.85h4.877v-8.414c0-4.507-2.407-6.6-5.616-6.6" transform="translate(-213.134 -182.378)"/></svg>
-                                                </div></a></li>
-                                                <?php endif; ?>
-                                            </ul>
-                                        </div></div>
+                            <ul>
+                                <?php if ($contact_data->facebook_link != ''): ?>
+                                    <li><a href="<?= $contact_data->facebook_link ?>" target="_blank" rel="noopener" class="links" aria-label="Facebook">
+                                            <div class="icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13.247" fill="#fff" height="23.339" viewBox="0 0 13.247 23.339">
+                                                    <path d="M9.929,5.777c.032-.036.181-.153.766-.153h1.919A1.133,1.133,0,0,0,13.746,4.49V1.136A1.134,1.134,0,0,0,12.616,0L9.766,0A5.866,5.866,0,0,0,5.441,1.678,6.159,6.159,0,0,0,3.812,6.091V7.9H1.632A1.133,1.133,0,0,0,.5,9.032v3.612a1.133,1.133,0,0,0,1.132,1.132H3.812v8.43a1.133,1.133,0,0,0,1.132,1.132H8.682a1.133,1.133,0,0,0,1.132-1.132v-8.43H12.48a1.133,1.133,0,0,0,1.132-1.132V9.032a1.136,1.136,0,0,0-.582-.99,1.15,1.15,0,0,0-.56-.142H9.814V6.471c0-.466.063-.634.115-.694Zm0,0" transform="translate(-0.5 0)" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                                <?php if ($contact_data->instagram_link != ''): ?>
+                                    <li><a href="<?= $contact_data->instagram_link ?>" target="_blank" rel="noopener" class="links" aria-label="Instagram">
+                                            <div class="icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="23.72" height="23.72" viewBox="0 0 23.72 23.72">
+                                                    <path d="M17.795,0H5.935A5.948,5.948,0,0,0,0,5.93V17.79a5.948,5.948,0,0,0,5.93,5.93h11.86a5.948,5.948,0,0,0,5.93-5.93V5.93A5.948,5.948,0,0,0,17.795,0Zm3.953,17.79a3.958,3.958,0,0,1-3.953,3.953H5.935A3.958,3.958,0,0,1,1.982,17.79V5.93A3.958,3.958,0,0,1,5.935,1.977h11.86A3.957,3.957,0,0,1,21.748,5.93V17.79Z" transform="translate(-0.005 0)" />
+                                                    <ellipse cx="1.482" cy="1.482" rx="1.482" ry="1.482" transform="translate(16.802 3.953)" />
+                                                    <path d="M108.335,102.4a5.93,5.93,0,1,0,5.93,5.93A5.929,5.929,0,0,0,108.335,102.4Zm0,9.884a3.953,3.953,0,1,1,3.953-3.954A3.953,3.953,0,0,1,108.335,112.284Z" transform="translate(-96.475 -96.47)" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                                <?php if ($contact_data->youtube_link != ''): ?>
+                                    <li><a href="<?= $contact_data->youtube_link ?>" target="_blank" rel="noopener" class="links" aria-label="YouTube">
+                                            <div class="icon" id="youtube">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="30.018" height="21.692" viewBox="0 0 30.018 21.692">
+                                                    <path d="M15.006,22.192H15c-.906-.006-8.913-.079-11.182-.693A4.639,4.639,0,0,1,.552,18.237,34.047,34.047,0,0,1,0,11.375,34.688,34.688,0,0,1,.55,4.461l0-.006A4.737,4.737,0,0,1,3.812,1.171l.012,0C6.067.578,14.091.506,15,.5h.016c.908.006,8.937.079,11.185.694A4.638,4.638,0,0,1,29.46,4.451a33.031,33.031,0,0,1,.553,6.95,34.141,34.141,0,0,1-.55,6.852l0,.006a4.64,4.64,0,0,1-3.266,3.263l-.006,0c-2.243.589-10.266.661-11.174.668h-.008ZM2.817,5.062a33.545,33.545,0,0,0-.472,6.3v.031a31.521,31.521,0,0,0,.472,6.239,2.287,2.287,0,0,0,1.61,1.6c1.674.453,8.2.6,10.579.612,2.39-.017,8.921-.155,10.583-.59a2.288,2.288,0,0,0,1.607-1.6,31.629,31.629,0,0,0,.472-6.239c0-.012,0-.025,0-.037A30.528,30.528,0,0,0,27.2,5.07v0a2.288,2.288,0,0,0-1.611-1.608c-1.658-.453-8.19-.6-10.579-.612-2.388.017-8.913.155-10.58.589a2.352,2.352,0,0,0-1.61,1.628ZM12.018,16.094V6.6l8.208,4.749Zm0,0" transform="translate(0.002 -0.5)" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                                <?php if ($contact_data->twitter_link != ''): ?>
+                                    <li><a href="<?= $contact_data->twitter_link ?>" target="_blank" rel="noopener" class="links" aria-label="X">
+                                            <div class="icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="21.407" height="20.793" viewBox="0 0 21.407 20.793">
+                                                    <path d="M24.711,8.381,31.921,0H30.213l-6.26,7.277L18.952,0H13.185l7.561,11-7.561,8.789h1.709L21.5,12.108l5.281,7.685h5.767L24.711,8.381Zm-2.34,2.72-.766-1.1-6.1-8.719h2.624l4.919,7.037.766,1.1,6.395,9.146H27.589L22.371,11.1Z" transform="translate(-12.095 0.5)" stroke-width="1" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                                <?php if ($contact_data->threads_link != ''): ?>
+                                    <li><a href="<?= $contact_data->threads_link ?>" target="_blank" rel="noopener" class="links" aria-label="Threads">
+                                            <div class="icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="23.158" height="26.396" viewBox="0 0 23.158 26.396">
+                                                    <path d="M43.186,26.4h-.008c-3.938-.027-6.966-1.325-9-3.86-1.811-2.256-2.744-5.395-2.776-9.328v-.019c.031-3.934.965-7.072,2.776-9.328,2.033-2.535,5.062-3.834,9-3.86h.015A12.149,12.149,0,0,1,50.7,2.306a11.108,11.108,0,0,1,3.86,6.013l-2.243.626C51.1,4.59,48.032,2.364,43.185,2.329c-3.2.023-5.619,1.029-7.192,2.989C34.52,7.153,33.759,9.8,33.731,13.2c.029,3.394.79,6.045,2.262,7.879,1.573,1.96,3.992,2.966,7.192,2.989,2.884-.021,4.793-.693,6.38-2.248a4.724,4.724,0,0,0,1.2-5.276,4.238,4.238,0,0,0-1.8-1.923,7.266,7.266,0,0,1-1.413,3.6,5.383,5.383,0,0,1-4.1,1.969A6.037,6.037,0,0,1,39.87,19.3a4.125,4.125,0,0,1-.466-6.649,6.5,6.5,0,0,1,3.94-1.419,15.076,15.076,0,0,1,3.321.157,3.824,3.824,0,0,0-.822-1.932,3.318,3.318,0,0,0-2.6-.98h-.032a3.452,3.452,0,0,0-2.994,1.451l-1.933-1.3a5.715,5.715,0,0,1,4.926-2.48h.048c3.514.022,5.607,2.171,5.815,5.925.12.05.237.1.353.157A6.814,6.814,0,0,1,52.9,15.609a7.038,7.038,0,0,1-1.7,7.874c-2.032,1.99-4.5,2.889-8,2.913h-.007Zm1.1-12.859c-.266,0-.536.008-.812.024-2.02.114-3.279,1.039-3.207,2.357.075,1.38,1.6,2.022,3.061,1.943,1.347-.072,3.1-.6,3.394-4.081a11.7,11.7,0,0,0-2.435-.242Z" transform="translate(-31.403)" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                                <?php if ($contact_data->linkedin_link != ''): ?>
+                                    <li><a href="<?= $contact_data->linkedin_link ?>" target="_blank" rel="noopener" class="links" aria-label="LinkedIn">
+                                            <div class="icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22.755" height="21.749" viewBox="0 0 22.755 21.749">
+                                                    <path d="M2.759,0A2.542,2.542,0,1,0,2.7,5.071h.032A2.543,2.543,0,1,0,2.759,0" />
+                                                    <rect width="4.878" height="14.675" transform="translate(0.288 7.074)" />
+                                                    <path d="M230.273,189.108c-2.631,0-4.4,2.473-4.4,2.473v-2.128H221v14.675h4.878v-8.195a3.343,3.343,0,0,1,.161-1.19,2.67,2.67,0,0,1,2.5-1.784c1.765,0,2.471,1.346,2.471,3.318v7.85h4.877v-8.414c0-4.507-2.407-6.6-5.616-6.6" transform="translate(-213.134 -182.378)" />
+                                                </svg>
+                                            </div>
+                                        </a></li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
                     </div>
+                </div>
                 </div>
             </section>
         </footer>
@@ -678,7 +744,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                 <div class="modal-body">
                     <div class="flxBx">
                         <div class="lftBx">
-                            <div class="imgBx">
+                            <div class="imgBox">
                                 <?php $popupImg = About::getValue('book_an_appointment_popup_image', $language); ?>
                                 <img src="<?= $popupImg ?>" width="700" height="630" alt="popupBg" loading="lazy">
                             </div>
@@ -696,10 +762,32 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                 <div class="row">
                                     <input type="hidden" name="AppointmentEnquiry[page_url]" value="<?= Html::encode($currentUrl) ?>">
                                     <div class="col-lg-12"><?= $form->field($am, 'name')->textInput(['placeholder' => Words::getValue($language, 'name') . ' *'])->label(false) ?></div>
-                                    <div class="col-lg-6"><?= $form->field($am, 'age')->textInput(['placeholder' => Words::getValue($language, 'age') . ' *'])->label(false) ?></div>
-                                    <div class="col-lg-6"><?= $form->field($am, 'gender')->dropDownList($genders, ['prompt' => Words::getValue($language, 'gender') . ' *', 'class' => 'select2 select'])->label(false) ?></div>
-                                    <div class="col-lg-12"><?= $form->field($am, 'phone_number')->textInput(['placeholder' => Words::getValue($language, 'phone_no') . ' *'])->label(false) ?></div>
                                     <div class="col-lg-12"><?= $form->field($am, 'email')->textInput(['placeholder' => Words::getValue($language, 'email') . ' *'])->label(false) ?></div>
+                                    <div class="col-lg-12"><?= $form->field($am, 'phone_number')->textInput(['placeholder' => Words::getValue($language, 'phone_no') . ' *'])->label(false) ?></div>
+
+                                    <div class="col-lg-12">
+                                        <?= $form->field($am, 'fk_appointment_department')->dropDownList(
+                                            $departmentOptions,
+                                            [
+                                                'id'     => 'appointment-department',
+                                                'prompt' => Words::getValue($language, 'select_department'),
+                                                'class'  => 'select2 select',
+                                            ]
+                                        )->label(false) ?>
+                                    </div>
+
+                                    <div class="col-lg-12">
+                                        <?= $form->field($am, 'service')->dropDownList(
+                                            [],
+                                            [
+                                                'id'       => 'appointment-service',
+                                                'prompt'   => Words::getValue($language, 'select_department_first'),
+                                                'class'    => 'select2 select',
+                                                'disabled' => true,
+                                            ]
+                                        )->label(false) ?>
+                                    </div>
+
                                     <div class="col-sm-12">
                                         <div class="dateBx">
                                             <?= $form->field($am, 'appointment_date')->textInput([
@@ -710,8 +798,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                             ])->label(false) ?>
                                         </div>
                                     </div>
-                                    <div class="col-lg-12"><?= $form->field($am, 'service')->dropDownList($service_list, ['prompt' => Words::getValue($language, 'select_department'), 'class' => 'select2 select'])->label(false) ?></div>
-                                    <div class="col-lg-12"><?= $form->field($am, 'message')->textarea(['placeholder' => Words::getValue($language, 'message')])->label(false) ?></div>
+
                                     <!-- reCAPTCHA: api.js is loaded only when this modal first opens (see JS below) -->
                                     <div class="col-lg-12 mb-3">
                                         <div class="g-recaptcha" data-sitekey="6LeIN5stAAAAAH4T1_W3wKcBxlKmq8P-8bzJTga4"></div>
@@ -721,6 +808,46 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                                     </div>
                                 </div>
                                 <?php ActiveForm::end(); ?>
+                                <?php
+                                $jsFlags   = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
+                                $optionsJs = json_encode($serviceOptionsByDepartment, $jsFlags);
+                                $promptJs  = json_encode(Words::getValue($language, 'select_services'), $jsFlags);
+                                $chooseJs  = json_encode(Words::getValue($language, 'select_department_first'), $jsFlags);
+                                $selectedJs = json_encode((string) $am->service, $jsFlags);
+
+                                $this->registerJs(<<<JS
+                (() => {
+                    const options  = {$optionsJs};
+                    const prompt   = {$promptJs};
+                    const choose   = {$chooseJs};
+                    const selected = {$selectedJs};
+
+                    document.querySelectorAll('select[name$="[fk_appointment_department]"]').forEach(department => {
+                        const form = department.closest('form');
+                        const service = form && form.querySelector('select[name$="[service]"]');
+                        if (!service) return;
+
+                        let keep = selected;
+                        function refresh() {
+                            const id = department.value;
+                            service.replaceChildren(new Option(id ? prompt : choose, ''));
+                            (options[id] || []).forEach(([value, label]) => service.add(new Option(label, value)));
+                            service.disabled = !id;
+                            service.value = keep && service.querySelector('option[value="' + keep + '"]') ? keep : '';
+                            keep = '';
+                            if (window.jQuery && jQuery.fn.select2) jQuery(service).trigger('change.select2');
+                        }
+
+                        if (window.jQuery) {
+                            jQuery(department).on('change select2:select select2:clear', refresh);
+                        } else {
+                            department.addEventListener('change', refresh);
+                        }
+                        refresh();
+                    });
+                })();
+                JS, \yii\web\View::POS_READY);
+                                ?>
                             </div>
                         </div>
                     </div>
@@ -1057,7 +1184,7 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=976174241061653&ev=PageView&noscript=1" alt=""></noscript>
 
     <script src="<?= $homeUrl ?>lib/jquery-3.7.0.min.js"></script>
-  
+
     <script<?= $libsAttr ?> src="<?= $homeUrl ?>lib/vendor.min.js?v=1">
         </script>
         <script<?= $libsAttr ?> src="<?= $homeUrl ?>js/app.min.js">
@@ -1067,4 +1194,4 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
 </body>
 
 </html>
-<?php $this->endPage();
+<?php $this->endPage(); ?>

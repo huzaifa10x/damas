@@ -20,13 +20,19 @@ use yii\helpers\ArrayHelper;
 use common\models\Genders;
 use common\models\Departments;
 use common\models\AppointmentEnquiryListing;
+use common\models\Banners;
+use common\models\Blogs;
+use common\models\MetaTags;
+use common\models\Services;
 
 /**
  * Site controller
  */
-class SiteController extends Controller {
+class SiteController extends Controller
+{
 
-    public function beforeAction($action) {
+    public function beforeAction($action)
+    {
         $this->enableCsrfValidation = false;
         return parent::beforeAction($action);
     }
@@ -34,7 +40,8 @@ class SiteController extends Controller {
     /**
      * {@inheritdoc}
      */
-    public function behaviors() {
+    public function behaviors()
+    {
         return [
             /*
              * Full-page cache for the public content pages. A cache hit skips the controller, the layout
@@ -49,9 +56,25 @@ class SiteController extends Controller {
             'pageCache' => [
                 'class' => \common\components\SafePageCache::class, // only caches HTTP 200 responses
                 'only' => [
-                    'index', 'about', 'departments', 'department-details', 'service-details', 'subservice-details',
-                    'our-doctors', 'doctor-details', 'offers', 'insurance', 'testimonials', 'gallery', 'faq',
-                    'blogs', 'blog-details', 'privacy-policy', 'terms-and-conditions', 'careers', 'media-library',
+                    'index',
+                    'about',
+                    'departments',
+                    'department-details',
+                    'service-details',
+                    'subservice-details',
+                    'our-doctors',
+                    'doctor-details',
+                    'offers',
+                    'insurance',
+                    'testimonials',
+                    'gallery',
+                    'faq',
+                    'blogs',
+                    'blog-details',
+                    'privacy-policy',
+                    'terms-and-conditions',
+                    'careers',
+                    'media-library',
                     // NOT 'landing-page': layouts/landing.php prints the per-visitor session['logerror'] booking flag
                 ],
                 'duration' => \common\components\ContentCache::DURATION,
@@ -63,12 +86,12 @@ class SiteController extends Controller {
                 'class' => AccessControl::class,
                 'only' => ['logout', 'signup'],
                 'rules' => [
-                        [
+                    [
                         'actions' => ['signup'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
-                        [
+                    [
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
@@ -78,7 +101,7 @@ class SiteController extends Controller {
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-//                    'logout' => ['post'],
+                    //                    'logout' => ['post'],
                 ],
             ],
         ];
@@ -89,7 +112,8 @@ class SiteController extends Controller {
      * The session is only opened when the visitor already has a session cookie,
      * so first-time visitors (the Lighthouse case) never create a session at all on a cache hit.
      */
-    private static function isPageCacheable() {
+    private static function isPageCacheable()
+    {
         $request = Yii::$app->request;
         if (!$request->isGet || YII_DEBUG) {
             return false;
@@ -112,7 +136,8 @@ class SiteController extends Controller {
      * shares the same cached page instead of creating a new cache file. (The booking forms' page_url field
      * is filled with the real URL in the browser — see layouts/main.php — so attribution is not lost.)
      */
-    private static function pageCacheKey() {
+    private static function pageCacheKey()
+    {
         $request = Yii::$app->request;
         $params = $request->get();
         foreach (array_keys($params) as $k) {
@@ -127,7 +152,8 @@ class SiteController extends Controller {
     /**
      * {@inheritdoc}
      */
-    public function actions() {
+    public function actions()
+    {
         return [
             'error' => [
                 'class' => \yii\web\ErrorAction::class,
@@ -144,21 +170,16 @@ class SiteController extends Controller {
      *
      * @return mixed
      */
-    public function actionIndex($language = NULL) {
-       
+    public function actionIndex($language = NULL)
+    {
         if ($language == '') {
             $language = 'en';
         }
+
         $model = new AppointmentEnquiryListing();
-        if ($language == 'ar') {
-            $services = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
-            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender_arabic');
-        } else {
-            $services = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name');
-            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender');
-        }
+
         if ($model->load(Yii::$app->request->post())) {
-            $dateString = $model->appointment_date ?? ''; // Use empty string if null
+            $dateString = $model->appointment_date ?? '';
             $date = new \DateTime(str_replace(',', '', $dateString));
             $model->appointment_date = $date->format('Y-m-d');
             $url = $model->page_url;
@@ -166,12 +187,11 @@ class SiteController extends Controller {
             if ($model->validate() && $model->save()) {
                 Yii::$app->session['logerror'] = 1;
                 Yii::$app->SetValues->bookingemail($model);
-                // Yii::$app->response->redirect($url);
                 return $this->redirect(['booking-success', 'language' => $language]);
             }
         }
+
         $sliders = \common\models\HomeBanner::find()->where(['status' => 1])->all();
-        // $services = \common\models\Services::find()->where(['status' => 1])->all();
         $departments = \common\models\Departments::find()->where(['status' => 1])->all();
         $doctors = \common\models\Doctors::find()->where(['status' => 1])->all();
         $special_offers = \common\models\SpecialOffer::find()->where(['status' => 1])->all();
@@ -179,52 +199,55 @@ class SiteController extends Controller {
         $testimonials = \common\models\Testimonials::find()->where(['status' => 1])->orderBy(['id' => SORT_DESC])->all();
         $google_reviews = \common\models\GoogleReviews::find()->where(['status' => 1])->orderBy(['id' => SORT_DESC])->all();
         $meta_tags = \common\models\MetaTags::findOne(1);
-        
-        $isAr = ($language === 'ar');
-        
-        // Handle Title
-        if ($isAr && !empty($meta_tags->meta_title_arabic)) {
-            $this->view->title = $meta_tags->meta_title_arabic;
-        } else {
-            $this->view->title = $meta_tags->meta_title;
+
+        $departmentNameAttribute = $language === 'ar' ? 'department_name_arabic' : 'department_name';
+        $departmentOptions = \yii\helpers\ArrayHelper::map($departments, 'id', $departmentNameAttribute);
+
+        // Fetch active services grouped by department
+        $activeServices = \common\models\Services::find()
+            ->where(['status' => 1])
+            ->orderBy(['service_name' => SORT_ASC])
+            ->all();
+
+        $serviceOptionsByDepartment = [];
+        foreach ($activeServices as $service) {
+            $serviceName = $language === 'ar' ? $service->service_name_arabic : $service->service_name;
+            $serviceOptionsByDepartment[$service->department][] = [(int) $service->id, $serviceName];
         }
-        
-        // Handle Keywords
-        $keywords = ($isAr && !empty($meta_tags->meta_keyword_arabic)) 
-                    ? $meta_tags->meta_keyword_arabic 
-                    : $meta_tags->meta_keyword;
-        
-        // Handle Description
-        $description = ($isAr && !empty($meta_tags->meta_description_arabic)) 
-                       ? $meta_tags->meta_description_arabic 
-                       : $meta_tags->meta_description;
-        
+
+        $isAr = ($language === 'ar');
+
+        // Handle Meta Tags
+        $this->view->title = $isAr ? ($meta_tags->meta_title_arabic ?: $meta_tags->meta_title) : $meta_tags->meta_title;
+        $keywords = $isAr ? ($meta_tags->meta_keyword_arabic ?: $meta_tags->meta_keyword) : $meta_tags->meta_keyword;
+        $description = $isAr ? ($meta_tags->meta_description_arabic ?: $meta_tags->meta_description) : $meta_tags->meta_description;
+
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $keywords]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $description]);
-        
+
         $this->view->params['language'] = $language;
+
         return $this->render('index', [
-                    'language' => $language,
-                    'sliders' => $sliders,
-                    'doctors' => $doctors,
-                    // 'services' => $services,
-                    'departments' => $departments,
-                    'special_offers' => $special_offers,
-                    'insurances' => $insurances,
-                    'testimonials' => $testimonials,
-                    'google_reviews' => $google_reviews,
-                    'model' => $model,
-                    'services' => $services,
-                    'genders' => $genders,
+            'language' => $language,
+            'sliders' => $sliders,
+            'doctors' => $doctors,
+            'departments' => $departments,
+            'special_offers' => $special_offers,
+            'insurances' => $insurances,
+            'testimonials' => $testimonials,
+            'google_reviews' => $google_reviews,
+            'model' => $model,
+            'departmentOptions' => $departmentOptions,
+            'serviceOptionsByDepartment' => $serviceOptionsByDepartment,
         ]);
     }
-
     /**
      * Logs in a user.
      *
      * @return mixed
      */
-    public function actionLogin($language) {
+    public function actionLogin($language)
+    {
         $this->view->params['language'] = $language;
         if (!Yii::$app->user->isGuest) {
             return $this->redirect(['index', 'language' => $language]);
@@ -237,8 +260,8 @@ class SiteController extends Controller {
         $model->password = '';
 
         return $this->render('login', [
-                    'language' => $language,
-                    'model' => $model,
+            'language' => $language,
+            'model' => $model,
         ]);
     }
 
@@ -247,7 +270,8 @@ class SiteController extends Controller {
      *
      * @return mixed
      */
-    public function actionLogout($language) {
+    public function actionLogout($language)
+    {
         Yii::$app->user->logout();
 
         return $this->redirect(['login', 'language' => $language]);
@@ -258,69 +282,69 @@ class SiteController extends Controller {
      *
      * @return mixed
      */
-    
-    public function actionContact($language) {
-    $this->view->params['language'] = $language;
-    $model = new \common\models\ContactEnquiry();
-    $data = \common\models\ContactUs::findOne(1);
-    $meta_tags = \common\models\MetaTags::findOne(3);
-    $banner = \common\models\Banners::findOne(11);
 
-    $this->view->title = $meta_tags->meta_title;
-    $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
-    $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
+    public function actionContact($language)
+    {
+        $this->view->params['language'] = $language;
+        $model = new \common\models\ContactEnquiry();
+        $data = \common\models\ContactUs::findOne(1);
+        $meta_tags = \common\models\MetaTags::findOne(3);
+        $banner = \common\models\Banners::findOne(11);
 
-    if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-        $model->message = strip_tags($model->message);
-        
-        if ($model->save()) {
-            
-            // Step 1: Mail sending me try-catch block add kiya hai taake SES issue detect ho saken
-            try {
-                // View path for mail template
-                $htmlBody = $this->renderPartial('@common/mail/enquiry-mail', ['model' => $model]);
+        $this->view->title = $meta_tags->meta_title;
+        $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
+        $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
 
-                $sent = Yii::$app->mailer->compose()
-                    ->setFrom([Yii::$app->params['senderEmail'] => 'Damas']) // Fix: String name passed back
-                    ->setTo(Yii::$app->params['adminEmail'])
-                    ->setSubject('New Contact Enquiry')
-                    ->setHtmlBody($htmlBody) // Fix: TextBody ki jagah HtmlBody
-                    ->send();
-                
-                
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $model->message = strip_tags($model->message);
 
-                if ($sent) {
-                    Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible');
-                } else {
-                    // Agar mailer failed (false return kiya)
-                    Yii::$app->session->setFlash('error', 'Mail server failed to deliver the email. Please check SMTP configuration.');
+            if ($model->save()) {
+
+                // Step 1: Mail sending me try-catch block add kiya hai taake SES issue detect ho saken
+                try {
+                    // View path for mail template
+                    $htmlBody = $this->renderPartial('@common/mail/enquiry-mail', ['model' => $model]);
+
+                    $sent = Yii::$app->mailer->compose()
+                        ->setFrom([Yii::$app->params['senderEmail'] => 'Damas']) // Fix: String name passed back
+                        ->setTo(Yii::$app->params['adminEmail'])
+                        ->setSubject('New Contact Enquiry')
+                        ->setHtmlBody($htmlBody) // Fix: TextBody ki jagah HtmlBody
+                        ->send();
+
+
+
+                    if ($sent) {
+                        Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible');
+                    } else {
+                        // Agar mailer failed (false return kiya)
+                        Yii::$app->session->setFlash('error', 'Mail server failed to deliver the email. Please check SMTP configuration.');
+                    }
+                } catch (\Exception $e) {
+                    // Catch any Amazon SES / SMTP Connection error without breaking app
+                    Yii::error("Mail Sending Failed: " . $e->getMessage(), 'email');
+
+                    // Testing phase me screen par exact error dekhne ke liye is line ko uncomment karein:
+                    // die($e->getMessage());
+
+                    Yii::$app->session->setFlash('error', 'Email Error: ' . $e->getMessage());
                 }
 
-            } catch (\Exception $e) {
-                // Catch any Amazon SES / SMTP Connection error without breaking app
-                Yii::error("Mail Sending Failed: " . $e->getMessage(), 'email');
-                
-                // Testing phase me screen par exact error dekhne ke liye is line ko uncomment karein:
-                // die($e->getMessage());
-
-                Yii::$app->session->setFlash('error', 'Email Error: ' . $e->getMessage());
+                return $this->redirect(['contact', 'language' => $language]);
+            } else {
+                // Step 2: Model database save errors check
+                Yii::$app->session->setFlash('error', 'Database Save Failed: ' . print_r($model->getErrors(), true));
             }
-
-            return $this->redirect(['contact', 'language' => $language]);
-        } else {
-            // Step 2: Model database save errors check
-            Yii::$app->session->setFlash('error', 'Database Save Failed: ' . print_r($model->getErrors(), true));
         }
+
+        return $this->render('contact', [
+            'model' => $model,
+            'data' => $data,
+            'language' => $language,
+            'banner' => $banner,
+        ]);
     }
 
-    return $this->render('contact', [
-        'model' => $model,
-        'data' => $data,
-        'language' => $language,
-        'banner' => $banner,
-    ]);
-}
-    
     // public function actionContact($language) {
     //     $this->view->params['language'] = $language;
     //     $model = new \common\models\ContactEnquiry();
@@ -332,20 +356,20 @@ class SiteController extends Controller {
     //     $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
     //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
     //         $model->message = strip_tags($model->message);
-            
+
     //         if ($model->save()) {
-                
-                
+
+
     //             // $message = Yii::$app->mailer->compose('enquiry-mail', ['model' => $model])
     //             //         ->setFrom([Yii::$app->params['senderEmail'] => 'Damas'])
     //             //         ->setTo(Yii::$app->params['adminEmail'])
     //             //         // ->setCc(['minnu@intersmart.in'])
     //             //         ->setSubject('New Contact Enquiry');
     //             // $message->send();
-                
+
     //             $htmlBody = $this->renderPartial('enquiry-mail', ['model' => $model]);
     //             $htmlBody = $this->renderPartial('@common/mail/enquiry-mail', ['model' => $model]);
-                
+
     //             Yii::$app->mailer->compose()
     //             ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['Damas']])
     //             ->setTo(Yii::$app->params['adminEmail']) // Admin Email yahan receive karega
@@ -365,91 +389,92 @@ class SiteController extends Controller {
     //                 'banner' => $banner,
     //     ]);
     // }
-    
-//     public function actionContact($language) {
-//     $this->view->params['language'] = $language;
-//     $model = new \common\models\ContactEnquiry();
-//     $data = \common\models\ContactUs::findOne(1);
-//     $meta_tags = \common\models\MetaTags::findOne(3);
-//     $banner = \common\models\Banners::findOne(11);
-//     $this->view->title = $meta_tags->meta_title;
-//     $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
-//     $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
-//     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-//         $model->message = strip_tags($model->message);
-//         if ($model->save()) {
-//             // 1. Generate the HTML from your existing view file
-//             // $htmlBody = $this->renderPartial('enquiry-mail', ['model' => $model]);
-//             $htmlBody = $this->renderPartial('@common/mail/enquiry-mail', ['model' => $model]);
 
-//             // 2. Call the API helper method
-//             $isSent = $this->sendZeptoEmail(
-//                 Yii::$app->params['adminEmail'], 
-//                 'New Contact Enquiry', 
-//                 $htmlBody
-//             );
+    //     public function actionContact($language) {
+    //     $this->view->params['language'] = $language;
+    //     $model = new \common\models\ContactEnquiry();
+    //     $data = \common\models\ContactUs::findOne(1);
+    //     $meta_tags = \common\models\MetaTags::findOne(3);
+    //     $banner = \common\models\Banners::findOne(11);
+    //     $this->view->title = $meta_tags->meta_title;
+    //     $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
+    //     $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
+    //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+    //         $model->message = strip_tags($model->message);
+    //         if ($model->save()) {
+    //             // 1. Generate the HTML from your existing view file
+    //             // $htmlBody = $this->renderPartial('enquiry-mail', ['model' => $model]);
+    //             $htmlBody = $this->renderPartial('@common/mail/enquiry-mail', ['model' => $model]);
 
-//             if ($isSent) {
-//                 Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible');
-//             } else {
-//                 Yii::$app->session->setFlash('error', 'There was an error sending your message. Please try again later.');
-//             }
+    //             // 2. Call the API helper method
+    //             $isSent = $this->sendZeptoEmail(
+    //                 Yii::$app->params['adminEmail'], 
+    //                 'New Contact Enquiry', 
+    //                 $htmlBody
+    //             );
 
-//             return $this->redirect(['site/contact', 'language' => $language]);
-//         }
-//     }
+    //             if ($isSent) {
+    //                 Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible');
+    //             } else {
+    //                 Yii::$app->session->setFlash('error', 'There was an error sending your message. Please try again later.');
+    //             }
 
-//     return $this->render('contact', [
-//         'model' => $model,
-//         'data' => $data,
-//         'language' => $language,
-//         'banner' => $banner,
-//     ]);
-// }
+    //             return $this->redirect(['site/contact', 'language' => $language]);
+    //         }
+    //     }
 
-private function sendZeptoEmail($toEmail, $subject, $htmlContent)
-{
-    $url = "https://api.zeptomail.com/v1.1/email";
-    $apiKey = "Zoho-enczapikey wSsVR610r0GhB/gsnjytL+c+nlpcUl/yFR8s0Fryv3H0GquQ/cc/lRfOVgOnTaQcEGJpEjYb9bp7m00E0WIKit0vnlsBCSiF9mqRe1U4J3x17qnvhDzPVmhalRSLKI4KwwljnWhnFcgh+g=="; 
+    //     return $this->render('contact', [
+    //         'model' => $model,
+    //         'data' => $data,
+    //         'language' => $language,
+    //         'banner' => $banner,
+    //     ]);
+    // }
 
-    $data = [
-        "from" => ["address" => Yii::$app->params['senderEmail'], "name" => "Damas"],
-        "to" => [["email_address" => ["address" => $toEmail]]],
-        "subject" => $subject,
-        "htmlbody" => $htmlContent,
-    ];
+    private function sendZeptoEmail($toEmail, $subject, $htmlContent)
+    {
+        $url = "https://api.zeptomail.com/v1.1/email";
+        $apiKey = "Zoho-enczapikey wSsVR610r0GhB/gsnjytL+c+nlpcUl/yFR8s0Fryv3H0GquQ/cc/lRfOVgOnTaQcEGJpEjYb9bp7m00E0WIKit0vnlsBCSiF9mqRe1U4J3x17qnvhDzPVmhalRSLKI4KwwljnWhnFcgh+g==";
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Content-Type: application/json",
-        "Authorization: " . $apiKey,
-    ]);
+        $data = [
+            "from" => ["address" => Yii::$app->params['senderEmail'], "name" => "Damas"],
+            "to" => [["email_address" => ["address" => $toEmail]]],
+            "subject" => $subject,
+            "htmlbody" => $htmlContent,
+        ];
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Authorization: " . $apiKey,
+        ]);
 
-    // --- DEBUGGING: Display the response if it fails ---
-    // Agar success code 200 ya 201 hai, to return true hoga.
-    if ($httpCode === 200 || $httpCode === 201) {
-        return true;
-    } else {
-        // Agar error aaya to log mein store ho jayega, screen par nahi dikhega
-        Yii::error("ZeptoMail API Error ($httpCode): " . $response);
-        return false;
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // --- DEBUGGING: Display the response if it fails ---
+        // Agar success code 200 ya 201 hai, to return true hoga.
+        if ($httpCode === 200 || $httpCode === 201) {
+            return true;
+        } else {
+            // Agar error aaya to log mein store ho jayega, screen par nahi dikhega
+            Yii::error("ZeptoMail API Error ($httpCode): " . $response);
+            return false;
+        }
+
+        return ($httpCode === 200);
     }
-
-    return ($httpCode === 200);
-}
     /**
      * Displays about page.
      *
      * @return mixed
      */
-    public function actionAbout($language) {
+    public function actionAbout($language)
+    {
         $this->view->params['language'] = $language;
         $model = new AppointmentEnquiryListing();
         if ($language == 'ar') {
@@ -472,21 +497,45 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
                 return $this->redirect(['booking-success', 'language' => $language]);
             }
         }
+
+
         $our_history = \common\models\OurHistory::find()->where(['status' => 1])->orderBy(['year' => SORT_ASC])->all();
         $meta_tags = \common\models\MetaTags::findOne(2);
         $banner = \common\models\Banners::findOne(1);
-           $insurances = \common\models\Insurance::find()->where(['status' => 1])->all();
+        $insurances = \common\models\Insurance::find()->where(['status' => 1])->all();
         $this->view->title = $meta_tags->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
+        
+        $departments = \common\models\Departments::find()->where(['status' => 1])->all();
+          $departmentNameAttribute = $language === 'ar' ? 'department_name_arabic' : 'department_name';
+        $departmentOptions = \yii\helpers\ArrayHelper::map($departments, 'id', $departmentNameAttribute);
+
+        // Fetch active services grouped by department
+        $activeServices = \common\models\Services::find()
+            ->where(['status' => 1])
+            ->orderBy(['service_name' => SORT_ASC])
+            ->all();
+
+        $serviceOptionsByDepartment = [];
+        foreach ($activeServices as $service) {
+            $serviceName = $language === 'ar' ? $service->service_name_arabic : $service->service_name;
+            $serviceOptionsByDepartment[$service->department][] = [(int) $service->id, $serviceName];
+        }
+
+        $isAr = ($language === 'ar');
+
         return $this->render('about', [
-                    'language' => $language,
-                    'our_history' => $our_history,
-                    'banner' => $banner,
-                    'model' => $model,
-                    'insurances' => $insurances,
-                    'services' => $services,
-                    'genders' => $genders,
+            'language' => $language,
+            'our_history' => $our_history,
+            'banner' => $banner,
+            'model' => $model,
+            'insurances' => $insurances,
+            'services' => $services,
+            'genders' => $genders,
+            'model' => $model,
+              'departmentOptions' => $departmentOptions,
+            'serviceOptionsByDepartment' => $serviceOptionsByDepartment,
         ]);
     }
 
@@ -495,7 +544,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionSignup($language) {
+    public function actionSignup($language)
+    {
         $this->view->params['language'] = $language;
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post()) && $model->signup()) {
@@ -504,8 +554,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         }
 
         return $this->render('signup', [
-                    'language' => $language,
-                    'model' => $model,
+            'language' => $language,
+            'model' => $model,
         ]);
     }
 
@@ -514,7 +564,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionForgotPassword($language) {
+    public function actionForgotPassword($language)
+    {
         $this->view->params['language'] = $language;
         $model = new PasswordResetRequestForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -527,8 +578,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         }
 
         return $this->render('requestPasswordResetToken', [
-                    'language' => $language,
-                    'model' => $model,
+            'language' => $language,
+            'model' => $model,
         ]);
     }
 
@@ -539,7 +590,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      * @return mixed
      * @throws BadRequestHttpException
      */
-    public function actionResetPassword($token) {
+    public function actionResetPassword($token)
+    {
         try {
             $model = new ResetPasswordForm($token);
         } catch (InvalidArgumentException $e) {
@@ -553,7 +605,7 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         }
 
         return $this->render('resetPassword', [
-                    'model' => $model,
+            'model' => $model,
         ]);
     }
 
@@ -564,7 +616,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      * @throws BadRequestHttpException
      * @return yii\web\Response
      */
-    public function actionVerifyEmail($token) {
+    public function actionVerifyEmail($token)
+    {
         try {
             $model = new VerifyEmailForm($token);
         } catch (InvalidArgumentException $e) {
@@ -584,7 +637,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionResendVerificationEmail() {
+    public function actionResendVerificationEmail()
+    {
         $model = new ResendVerificationEmailForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
@@ -595,7 +649,7 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         }
 
         return $this->render('resendVerificationEmail', [
-                    'model' => $model
+            'model' => $model
         ]);
     }
 
@@ -604,7 +658,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionLanguage($language) {
+    public function actionLanguage($language)
+    {
         if (Yii::$app->request->isAjax) {
             $lang = $_POST['lang'];
             \common\components\SetLanguage::SetLanguage($lang);
@@ -618,7 +673,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionChangeSession($language) {
+    public function actionChangeSession($language)
+    {
         if (Yii::$app->request->isAjax) {
             Yii::$app->session['logerror'] = 0;
             return Yii::$app->session['logerror'];
@@ -630,7 +686,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionDepartments($language) {
+    public function actionDepartments($language)
+    {
         $this->view->params['language'] = $language;
         $departments = \common\models\Departments::find()->where(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         $meta_tags = \common\models\MetaTags::findOne(4);
@@ -639,9 +696,9 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('department', [
-                    'language' => $language,
-                    'departments' => $departments,
-                    'banner' => $banner,
+            'language' => $language,
+            'departments' => $departments,
+            'banner' => $banner,
         ]);
     }
 
@@ -650,7 +707,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionDepartmentDetails($language, $slug) {
+    public function actionDepartmentDetails($language, $slug)
+    {
         $this->view->params['language'] = $language;
         $departments = \common\models\Departments::find()->where(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         $department_details = \common\models\Departments::find()->where(['canonical_name' => $slug])->one();
@@ -659,36 +717,92 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         if (!empty($department_videos1)) {
             $department_videos2 = \common\models\DepartmentVideos::find()->where(['department_id' => $department_details->id, 'status' => 1])->andWhere(['!=', 'id', $department_videos1->id])->andWhere(['not', ['video' => null]])->all();
         }
-        
-            if ($language == 'ar') {
-                $meta_title = $department_details->meta_title_ar;
-                $meta_keyword = $department_details->meta_keyword_ar;
-                $meta_description = $department_details->meta_description_ar;
-            } else {
-                $meta_title = $department_details->meta_title;
-                $meta_keyword = $department_details->meta_keyword;
-                $meta_description = $department_details->meta_description;
+
+        if ($language == 'ar') {
+            $meta_title = $department_details->meta_title_ar;
+            $meta_keyword = $department_details->meta_keyword_ar;
+            $meta_description = $department_details->meta_description_ar;
+        } else {
+            $meta_title = $department_details->meta_title;
+            $meta_keyword = $department_details->meta_keyword;
+            $meta_description = $department_details->meta_description;
+        }
+        $model = new AppointmentEnquiryListing();
+        if ($language == 'ar') {
+            $services = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
+            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender_arabic');
+        } else {
+            $services = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name');
+            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender');
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            $dateString = $model->appointment_date ?? ''; // Use empty string if null
+            $date = new \DateTime(str_replace(',', '', $dateString));
+            $model->appointment_date = $date->format('Y-m-d');
+            $url = $model->page_url;
+            $model->created_at = date('Y-m-d H:i:s');
+            if ($model->validate() && $model->save()) {
+                Yii::$app->session['logerror'] = 1;
+                Yii::$app->SetValues->bookingemail($model);
+                // Yii::$app->response->redirect($url);
+                return $this->redirect(['booking-success', 'language' => $language]);
             }
+        }
+        $offersSearchModel = new \common\models\ProductsSearch();
+        $offersDataProvider = $offersSearchModel->search([]);
+        $offersDataProvider->query->andWhere(['status' => 1]);
+        $offersDataProvider->query->andWhere([
+            'service' => \common\models\Services::find()
+                ->select('id')
+                ->where(['department' => $department_details->id, 'status' => 1]),
+        ]);
+        $offersDataProvider->pagination->pageSize = 3;
 
         $treatment_results = \common\models\DepartmentTreatmentResults::find()->where(['department_id' => $department_details->id, 'status' => 1])->all();
         $proc_and_cons = \common\models\DepartmentProsAndCons::find()->where(['department_id' => $department_details->id, 'status' => 1])->all();
-        $related_services = \common\models\Services::find()->where(['department' => $department_details->id, 'status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
+        $insurances = \common\models\Insurance::find()->where(['status' => 1])->all();
         $our_doctors = \common\models\Doctors::find()->where(['status' => 1])->andWhere(new \yii\db\Expression('FIND_IN_SET(:department,department)'))->addParams([':department' => $department_details->id])->all();
         $banner = \common\models\Banners::findOne(2);
+        
+        $departments = \common\models\Departments::find()->where(['status' => 1])->all();
+          $departmentNameAttribute = $language === 'ar' ? 'department_name_arabic' : 'department_name';
+        $departmentOptions = \yii\helpers\ArrayHelper::map($departments, 'id', $departmentNameAttribute);
+
+        // Fetch active services grouped by department
+        $activeServices = \common\models\Services::find()
+            ->where(['status' => 1])
+            ->orderBy(['service_name' => SORT_ASC])
+            ->all();
+
+        $serviceOptionsByDepartment = [];
+        foreach ($activeServices as $service) {
+            $serviceName = $language === 'ar' ? $service->service_name_arabic : $service->service_name;
+            $serviceOptionsByDepartment[$service->department][] = [(int) $service->id, $serviceName];
+        }
+
+        $isAr = ($language === 'ar');
+
         $this->view->title = $meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_description]);
         return $this->render('department-details', [
-                    'language' => $language,
-                    'departments' => $departments,
-                    'department_details' => $department_details,
-                    'department_videos1' => $department_videos1,
-                    'department_videos2' => $department_videos2,
-                    'treatment_results' => $treatment_results,
-                    'banner' => $banner,
-                    'proc_and_cons' => $proc_and_cons,
-                    'related_services' => $related_services,
-                    'our_doctors' => $our_doctors,
+            'language' => $language,
+            'departments' => $departments,
+            'department_details' => $department_details,
+            'department_videos1' => $department_videos1,
+            'department_videos2' => $department_videos2,
+            'treatment_results' => $treatment_results,
+            'banner' => $banner,
+            'proc_and_cons' => $proc_and_cons,
+            'our_doctors' => $our_doctors,
+            'insurances' => $insurances,
+            'model' => $model,
+            'services' => $services,
+            'genders' => $genders,
+            'offersDataProvider' => $offersDataProvider,
+              'departmentOptions' => $departmentOptions,
+            'serviceOptionsByDepartment' => $serviceOptionsByDepartment,
+
         ]);
     }
 
@@ -697,7 +811,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionServiceDetails($language, $department, $slug) {
+    public function actionServiceDetails($language, $department, $slug)
+    {
         $this->view->params['language'] = $language;
         $services = \common\models\Services::find()->where(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         $department_details = \common\models\Departments::find()->where(['canonical_name' => $department])->one();
@@ -713,42 +828,42 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $our_doctors = \common\models\Doctors::find()->where(['status' => 1])->andWhere(new \yii\db\Expression('FIND_IN_SET(:service,service)'))->addParams([':service' => $service_details->id])->all();
         $banner = \common\models\Banners::findOne(12);
         $sub_services = \common\models\SubServices::find()->where(['service' => $service_details->id, 'status' => 1])->all();
-        
+
         $isAr = ($language === 'ar');
-        
+
         // Handle Title
         if ($isAr && !empty($service_details->meta_title_ar)) {
             $this->view->title = $service_details->meta_title_ar;
         } else {
             $this->view->title = $service_details->meta_title;
         }
-        
+
         // Handle Keywords
-        $keywords = ($isAr && !empty($service_details->meta_keyword_ar)) 
-                    ? $service_details->meta_keyword_ar 
-                    : $service_details->meta_keyword;
-        
+        $keywords = ($isAr && !empty($service_details->meta_keyword_ar))
+            ? $service_details->meta_keyword_ar
+            : $service_details->meta_keyword;
+
         // Handle Description
-        $description = ($isAr && !empty($service_details->meta_description_ar)) 
-                       ? $service_details->meta_description_ar 
-                       : $service_details->meta_description;
-        
+        $description = ($isAr && !empty($service_details->meta_description_ar))
+            ? $service_details->meta_description_ar
+            : $service_details->meta_description;
+
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $keywords]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $description]);
 
         return $this->render('service-details', [
-                    'language' => $language,
-                    'services' => $services,
-                    'service_details' => $service_details,
-                    'service_videos1' => $service_videos1,
-                    'service_videos2' => $service_videos2,
-                    'treatment_results' => $treatment_results,
-                    'banner' => $banner,
-                    'proc_and_cons' => $proc_and_cons,
-                    'related_products' => $related_products,
-                    'our_doctors' => $our_doctors,
-                    'sub_services' => $sub_services,
-                    'department_details' => $department_details,
+            'language' => $language,
+            'services' => $services,
+            'service_details' => $service_details,
+            'service_videos1' => $service_videos1,
+            'service_videos2' => $service_videos2,
+            'treatment_results' => $treatment_results,
+            'banner' => $banner,
+            'proc_and_cons' => $proc_and_cons,
+            'related_products' => $related_products,
+            'our_doctors' => $our_doctors,
+            'sub_services' => $sub_services,
+            'department_details' => $department_details,
         ]);
     }
 
@@ -757,15 +872,16 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionSubserviceDetails($language, $service, $slug) {
+    public function actionSubserviceDetails($language, $service, $slug)
+    {
         $this->view->params['language'] = $language;
         $details = \common\models\SubServices::find()->where(['canonical_name' => $slug])->one();
         $this->view->title = $details->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $details->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $details->meta_description]);
         return $this->render('subservice-details', [
-                    'language' => $language,
-                    'details' => $details,
+            'language' => $language,
+            'details' => $details,
         ]);
     }
 
@@ -774,7 +890,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionProductDetails($language, $slug) {
+    public function actionProductDetails($language, $slug)
+    {
         $this->view->params['language'] = $language;
         $product_details = \common\models\Products::find()->where(['canonical_name' => $slug])->one();
         $now_price = $product_details->price;
@@ -795,41 +912,41 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         // $this->view->title = $product_details->meta_title;
         // $this->view->registerMetaTag(['name' => 'keywords', 'content' => $product_details->meta_keyword]);
         // $this->view->registerMetaTag(['name' => 'description', 'content' => $product_details->meta_description]);
-        
+
         $isAr = ($language === 'ar');
-        
+
         // Handle Title
         if ($isAr && !empty($product_details->meta_title_ar)) {
             $this->view->title = $product_details->meta_title_ar;
         } else {
             $this->view->title = $product_details->meta_title;
         }
-        
+
         // Handle Keywords
-        $keywords = ($isAr && !empty($product_details->meta_keyword_ar)) 
-                    ? $product_details->meta_keyword_ar 
-                    : $product_details->meta_keyword;
-        
+        $keywords = ($isAr && !empty($product_details->meta_keyword_ar))
+            ? $product_details->meta_keyword_ar
+            : $product_details->meta_keyword;
+
         // Handle Description
-        $description = ($isAr && !empty($product_details->meta_description_ar)) 
-                       ? $product_details->meta_description_ar 
-                       : $product_details->meta_description;
-        
+        $description = ($isAr && !empty($product_details->meta_description_ar))
+            ? $product_details->meta_description_ar
+            : $product_details->meta_description;
+
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $keywords]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $description]);
         return $this->render('product-details', [
-                    'language' => $language,
-                    'product_details' => $product_details,
-                    'actual_price' => $actual_price,
-                    'now_price' => $now_price,
-                    'percentage' => $percentage,
-                    'benefits_of_treatments' => $benefits_of_treatments,
-                    'before_after_images' => $before_after_images,
-                    'faqs' => $faqs,
-                    'terms_conditions' => $terms_conditions,
-                    'reviews' => $reviews,
-                    'related_products' => $related_products,
-                    'averageRating' => $averageRating,
+            'language' => $language,
+            'product_details' => $product_details,
+            'actual_price' => $actual_price,
+            'now_price' => $now_price,
+            'percentage' => $percentage,
+            'benefits_of_treatments' => $benefits_of_treatments,
+            'before_after_images' => $before_after_images,
+            'faqs' => $faqs,
+            'terms_conditions' => $terms_conditions,
+            'reviews' => $reviews,
+            'related_products' => $related_products,
+            'averageRating' => $averageRating,
         ]);
     }
 
@@ -838,7 +955,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionOffers($language) {
+    public function actionOffers($language)
+    {
         $this->view->params['language'] = $language;
         $searchModel = new \common\models\ProductsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -862,18 +980,21 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $departments = \common\models\Departments::find()->where(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         $meta_tags = \common\models\MetaTags::findOne(6);
         $banner = \common\models\Banners::findOne(4);
+        $insurances = \common\models\Insurance::find()->where(['status' => 1])->all();
+
         $this->view->title = $meta_tags->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('offers', [
-                    'language' => $language,
-                    'services' => $services,
-                    'departments' => $departments,
-                    'banner' => $banner,
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
-                    'dep_id' => $dep_id,
-                    'serv_id' => $serv_id,
+            'language' => $language,
+            'services' => $services,
+            'departments' => $departments,
+            'banner' => $banner,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'dep_id' => $dep_id,
+            'serv_id' => $serv_id,
+            'insurances' => $insurances,
         ]);
     }
 
@@ -882,7 +1003,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionOurDoctors($language) {
+    public function actionOurDoctors($language)
+    {
         $this->view->params['language'] = $language;
         $departments = \common\models\Departments::find()->where(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         $dr_id = '';
@@ -915,12 +1037,12 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('our-doctors', [
-                    'language' => $language,
-                    'doctors' => $doctors,
-                    'departments' => $departments,
-                    'banner' => $banner,
-                    'dr_id' => $dr_id,
-                    'dep_id' => $dep_id,
+            'language' => $language,
+            'doctors' => $doctors,
+            'departments' => $departments,
+            'banner' => $banner,
+            'dr_id' => $dr_id,
+            'dep_id' => $dep_id,
         ]);
     }
 
@@ -929,7 +1051,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionDoctorDetails($language, $slug) {
+    public function actionDoctorDetails($language, $slug)
+    {
         $this->view->params['language'] = $language;
         $doctor_details = \common\models\Doctors::find()->where(['canonical_name' => $slug])->one();
         $gallery_images = \common\models\DoctorGallery::find()->where(['doctor_id' => $doctor_details->id, 'status' => 1])->all();
@@ -939,10 +1062,10 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('doctor-details', [
-                    'language' => $language,
-                    'doctor_details' => $doctor_details,
-                    'gallery_images' => $gallery_images,
-                    'language_list' => $language_list,
+            'language' => $language,
+            'doctor_details' => $doctor_details,
+            'gallery_images' => $gallery_images,
+            'language_list' => $language_list,
         ]);
     }
 
@@ -951,7 +1074,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionBlogs($language) {
+    public function actionBlogs($language)
+    {
         $this->view->params['language'] = $language;
         $dep = '';
         $keyword = '';
@@ -963,28 +1087,28 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
                 $dep = $_POST['department'];
             }
             if (isset($_POST['keyword']) && $_POST['keyword'] != '') {
-                $qry = \common\models\Departments::find()->where(['like', 'department_name', $_POST['keyword']])->select('id');
+                $qry = Departments::find()->where(['like', 'department_name', $_POST['keyword']])->select('id');
                 $query->andWhere(['or', ['department_id' => $qry], ['like', 'title', $_POST['keyword']], ['like', 'title_arabic', $_POST['keyword']], ['like', 'description_arabic', $_POST['keyword']], ['like', 'description', $_POST['keyword']]]);
                 $keyword = $_POST['keyword'];
             }
         }
         $command = $query->createCommand();
         $res = $command->queryAll();
-        $blogs = \common\models\Blogs::find()->where(['id' => $res])->orderBy(['date' => SORT_DESC])->all();
-        $qry = \common\models\Blogs::find()->select('department_id')->distinct();
-        $departments = \common\models\Departments::find()->where(['status' => 1, 'id' => $qry])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
-        $meta_tags = \common\models\MetaTags::findOne(8);
-        $banner = \common\models\Banners::findOne(5);
+        $blogs = Blogs::find()->where(['id' => $res])->orderBy(['date' => SORT_DESC])->all();
+        $qry = Blogs::find()->select('department_id')->distinct();
+        $departments = Departments::find()->where(['status' => 1, 'id' => $qry])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
+        $meta_tags = MetaTags::findOne(8);
+        $banner = Banners::findOne(5);
         $this->view->title = $meta_tags->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('blogs', [
-                    'language' => $language,
-                    'blogs' => $blogs,
-                    'banner' => $banner,
-                    'departments' => $departments,
-                    'dep' => $dep,
-                    'keyword' => $keyword,
+            'language' => $language,
+            'blogs' => $blogs,
+            'banner' => $banner,
+            'departments' => $departments,
+            'dep' => $dep,
+            'keyword' => $keyword,
         ]);
     }
 
@@ -993,7 +1117,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionBlogDetails($language, $slug) {
+    public function actionBlogDetails($language, $slug)
+    {
         $this->view->params['language'] = $language;
         $blog_details = \common\models\Blogs::find()->where(['canonical_name' => $slug])->one();
         $blogs = \common\models\Blogs::find()->where(['department_id' => $blog_details->department_id])->andWhere(['!=', 'id', $blog_details->id])->all();
@@ -1001,9 +1126,9 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $blog_details->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $blog_details->meta_description]);
         return $this->render('blog-details', [
-                    'language' => $language,
-                    'blog_details' => $blog_details,
-                    'blogs' => $blogs,
+            'language' => $language,
+            'blog_details' => $blog_details,
+            'blogs' => $blogs,
         ]);
     }
 
@@ -1012,7 +1137,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionPrivacyPolicy($language) {
+    public function actionPrivacyPolicy($language)
+    {
         $this->view->params['language'] = $language;
         $data = \common\models\Policies::find()->where(['id' => 1])->one();
         $meta_tags = \common\models\MetaTags::findOne(9);
@@ -1020,8 +1146,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('privacy-policy', [
-                    'language' => $language,
-                    'data' => $data,
+            'language' => $language,
+            'data' => $data,
         ]);
     }
 
@@ -1030,7 +1156,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionTermsAndConditions($language) {
+    public function actionTermsAndConditions($language)
+    {
         $this->view->params['language'] = $language;
         $data = \common\models\Policies::find()->where(['id' => 2])->one();
         $meta_tags = \common\models\MetaTags::findOne(10);
@@ -1038,8 +1165,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('terms-and-condition', [
-                    'language' => $language,
-                    'data' => $data,
+            'language' => $language,
+            'data' => $data,
         ]);
     }
 
@@ -1048,7 +1175,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionFaq($language) {
+    public function actionFaq($language)
+    {
         $this->view->params['language'] = $language;
         $qry = \common\models\Faq::find()->select('department_id')->distinct();
         $departments = \common\models\Departments::find()->where(['status' => 1, 'id' => $qry])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
@@ -1059,10 +1187,10 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('faq', [
-                    'language' => $language,
-                    'departments' => $departments,
-                    'services' => $services,
-                    'banner' => $banner,
+            'language' => $language,
+            'departments' => $departments,
+            'services' => $services,
+            'banner' => $banner,
         ]);
     }
 
@@ -1071,7 +1199,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionInsurance($language) {
+    public function actionInsurance($language)
+    {
         $this->view->params['language'] = $language;
         $datas = \common\models\Insurance::find()->where(['status' => 1])->all();
         $banner = \common\models\Banners::findOne(7);
@@ -1080,9 +1209,9 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('insurance', [
-                    'language' => $language,
-                    'datas' => $datas,
-                    'banner' => $banner,
+            'language' => $language,
+            'datas' => $datas,
+            'banner' => $banner,
         ]);
     }
 
@@ -1091,7 +1220,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionCareers($language) {
+    public function actionCareers($language)
+    {
         $this->view->params['language'] = $language;
         $datas = \common\models\Careers::find()->where(['status' => 1])->orderBy(['id' => SORT_DESC])->all();
         $banner = \common\models\Banners::findOne(13);
@@ -1100,9 +1230,9 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('careers', [
-                    'language' => $language,
-                    'datas' => $datas,
-                    'banner' => $banner,
+            'language' => $language,
+            'datas' => $datas,
+            'banner' => $banner,
         ]);
     }
 
@@ -1111,7 +1241,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionCareerEnquiry($language) {
+    public function actionCareerEnquiry($language)
+    {
         if (Yii::$app->request->isAjax) {
             $flag = 0;
             if (!empty($_POST['honeypot'])) {
@@ -1147,15 +1278,15 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
                                     $flag = 1;
                                 }
                             }
-//                            echo "File uploaded successfully.";
+                            //                            echo "File uploaded successfully.";
                         } else {
-//                            echo "File is too large.";
+                            //                            echo "File is too large.";
                         }
                     } else {
-//                        echo "Error uploading file.";
+                        //                        echo "Error uploading file.";
                     }
                 } else {
-//                    echo "Invalid file type.";
+                    //                    echo "Invalid file type.";
                 }
             }
             return $flag;
@@ -1167,7 +1298,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionMediaLibrary($language) {
+    public function actionMediaLibrary($language)
+    {
         $this->view->params['language'] = $language;
         $dep = '';
         $serv = '';
@@ -1197,16 +1329,16 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('media-library', [
-                    'language' => $language,
-                    'categories' => $categories,
-                    'libraries' => $libraries,
-                    'galleries' => $galleries,
-                    'departments' => $departments,
-                    'services' => $services,
-                    'banner' => $banner,
-                    'dep' => $dep,
-                    'serv' => $serv,
-                    'res' => $res,
+            'language' => $language,
+            'categories' => $categories,
+            'libraries' => $libraries,
+            'galleries' => $galleries,
+            'departments' => $departments,
+            'services' => $services,
+            'banner' => $banner,
+            'dep' => $dep,
+            'serv' => $serv,
+            'res' => $res,
         ]);
     }
 
@@ -1215,7 +1347,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionTestimonials($language) {
+    public function actionTestimonials($language)
+    {
         $this->view->params['language'] = $language;
         $dep = '';
         $serv = '';
@@ -1243,15 +1376,15 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('testimonial', [
-                    'language' => $language,
-                    'datas' => $datas,
-                    'departments' => $departments,
-                    'services' => $services,
-                    'google_reviews' => $google_reviews,
-                    'banner' => $banner,
-                    'dep' => $dep,
-                    'serv' => $serv,
-                    'res' => $res,
+            'language' => $language,
+            'datas' => $datas,
+            'departments' => $departments,
+            'services' => $services,
+            'google_reviews' => $google_reviews,
+            'banner' => $banner,
+            'dep' => $dep,
+            'serv' => $serv,
+            'res' => $res,
         ]);
     }
 
@@ -1260,7 +1393,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      *
      * @return mixed
      */
-    public function actionGallery($language) {
+    public function actionGallery($language)
+    {
         $this->view->params['language'] = $language;
         $dep = '';
         $serv = '';
@@ -1294,15 +1428,15 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $meta_tags->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $meta_tags->meta_description]);
         return $this->render('gallery', [
-                    'language' => $language,
-                    'galleries' => $galleries,
-                    'departments' => $departments,
-                    'services' => $services,
-                    'treatment_galleries' => $treatment_galleries,
-                    'banner' => $banner,
-                    'dep' => $dep,
-                    'serv' => $serv,
-                    'res' => $res,
+            'language' => $language,
+            'galleries' => $galleries,
+            'departments' => $departments,
+            'services' => $services,
+            'treatment_galleries' => $treatment_galleries,
+            'banner' => $banner,
+            'dep' => $dep,
+            'serv' => $serv,
+            'res' => $res,
         ]);
     }
 
@@ -1347,56 +1481,59 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         
 //     }
 
-    public function actionAppointmentForm($language)
-    {
-        $this->view->params['language'] = $language;
-        $model = new AppointmentEnquiryListing();
-    
-        if ($model->load(Yii::$app->request->post(), 'AppointmentEnquiry')) {
-            if (!empty($model->appointment_date)) {
-                try {
-                    $cleanDate = str_replace(',', '', $model->appointment_date);
-                    $date = new \DateTime($cleanDate);
-                    $model->appointment_date = $date->format('Y-m-d');
-                } catch (\Exception $e) {
-                    Yii::$app->session->setFlash('error', 'Invalid appointment date format.');
-                    return $this->redirect(Yii::$app->request->referrer);
+        public function actionAppointmentForm($language)
+        {
+            $this->view->params['language'] = $language;
+            $model = new AppointmentEnquiryListing();
+        
+            if ($model->load(Yii::$app->request->post(), 'AppointmentEnquiry')) {
+                if (!empty($model->appointment_date)) {
+                    try {
+                        $cleanDate = str_replace(',', '', $model->appointment_date);
+                        $date = new \DateTime($cleanDate);
+                        $model->appointment_date = $date->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        Yii::$app->session->setFlash('error', 'Invalid appointment date format.');
+                        return $this->redirect(Yii::$app->request->referrer);
+                    }
                 }
+        
+                $model->created_at = date('Y-m-d H:i:s');
+        
+                if ($model->save()) {
+                    Yii::$app->session['logerror'] = 1;
+                    Yii::$app->SetValues->bookingemail($model);
+        
+                    // $htmlBody = $this->renderPartial('@common/mail/aapointment-mail', ['model' => $model]);
+        
+                    // Yii::$app->mailer->compose()
+                    //     ->setFrom([Yii::$app->params['senderEmail'] => 'Damas'])
+                    //     ->setTo(Yii::$app->params['adminEmail'])
+                    //     ->setSubject('New Contact Enquiry')
+                    //     ->setHtmlBody($htmlBody)
+                    //     ->send();
+        
+                    return $this->redirect(['booking-success', 'language' => $language]);
+                }
+        
+                // Fix: Model ke validation errors ko crash hone ke bajaye session mein set karein
+                $firstError = current($model->getFirstErrors());
+                Yii::$app->session->setFlash('error', $firstError ?: 'Please correct the errors in the form.');
+                return $this->redirect(Yii::$app->request->referrer);
             }
-    
-            $model->created_at = date('Y-m-d H:i:s');
-    
-            if ($model->save()) {
-                Yii::$app->session['logerror'] = 1;
-                Yii::$app->SetValues->bookingemail($model);
-    
-                // $htmlBody = $this->renderPartial('@common/mail/aapointment-mail', ['model' => $model]);
-    
-                // Yii::$app->mailer->compose()
-                //     ->setFrom([Yii::$app->params['senderEmail'] => 'Damas'])
-                //     ->setTo(Yii::$app->params['adminEmail'])
-                //     ->setSubject('New Contact Enquiry')
-                //     ->setHtmlBody($htmlBody)
-                //     ->send();
-    
-                return $this->redirect(['booking-success', 'language' => $language]);
-            }
-    
-            // Fix: Model ke validation errors ko crash hone ke bajaye session mein set karein
-            $firstError = current($model->getFirstErrors());
-            Yii::$app->session->setFlash('error', $firstError ?: 'Please correct the errors in the form.');
-            return $this->redirect(Yii::$app->request->referrer);
+        
+            return $this->redirect(['/site/index', 'language' => $language]);
         }
-    
-        return $this->redirect(['/site/index', 'language' => $language]);
-    }
 
     /**
      * Landing pages
      *
      * @return mixed
      */
-    public function actionLandingPage($language, $slug) {
+
+   
+    public function actionLandingPage($language, $slug)
+    {
         $this->layout = 'landing';
         $this->view->params['language'] = $language;
         $page_details = \common\models\LandingPages::find()->where(['canonical_name' => $slug, 'status' => 1])->one();
@@ -1406,15 +1543,15 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
         $gallery_images = \common\models\LandingPageImageGallery::find()->where(['landing_page_id' => $page_details->id, 'status' => 1])->all();
         $videos = \common\models\LandingPageVideos::find()->where(['landing_page_id' => $page_details->id, 'status' => 1])->all();
         $services = [];
-        if($page_details->services != ''){
-            $services = \common\models\Services::find()->where(['status' => 1,'id' => explode(",",$page_details->services)])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
+        if ($page_details->services != '') {
+            $services = \common\models\Services::find()->where(['status' => 1, 'id' => explode(",", $page_details->services)])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
         }
         $this->view->title = $page_details->meta_title;
         $this->view->registerMetaTag(['name' => 'keywords', 'content' => $page_details->meta_keyword]);
         $this->view->registerMetaTag(['name' => 'description', 'content' => $page_details->meta_description]);
         $this->view->params['phone'] = $page_details->phone_no;
         $this->view->params['whatsapp'] = $page_details->whatsapp_no;
-        
+
         $model = AppointmentEnquiryListing();
         if ($language == 'ar') {
             $service_list = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
@@ -1437,21 +1574,22 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
             }
         }
         return $this->render('landing-page', [
-                    'language' => $language,
-                    'page_details' => $page_details,
-                    'about' => $about,
-                    'sliders' => $sliders,
-                    'video_section' => $video_section,
-                    'gallery_images' => $gallery_images,
-                    'videos' => $videos,
-                    'services' => $services,
-                    'genders' => $genders,
-                    'service_list' => $service_list,
-                    'model' => $model,
+            'language' => $language,
+            'page_details' => $page_details,
+            'about' => $about,
+            'sliders' => $sliders,
+            'video_section' => $video_section,
+            'gallery_images' => $gallery_images,
+            'videos' => $videos,
+            'services' => $services,
+            'genders' => $genders,
+            'service_list' => $service_list,
+            'model' => $model,
         ]);
     }
 
-    public function actionSearch($lang = 'en') {
+    public function actionSearch($lang = 'en')
+    {
         if (Yii::$app->request->get()) {
             $language = $_GET['language'] ?? 'en';
             $keyword = $_GET['keyword'] ?? '';
@@ -1459,16 +1597,16 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
             $services = [];
             $departments = [];
             $this->view->params['language'] = $language;
-            if($keyword != ''){
-            $doctors = \common\models\Doctors::find()->where(['or', ['like', 'doctor_name', $keyword], ['like', 'doctor_name_arabic', $keyword]])->andWhere(['status' => 1])->all();
-            $services = \common\models\Services::find()->where(['or', ['like', 'service_name', $keyword], ['like', 'service_name_arabic', $keyword]])->andWhere(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
-            $departments = \common\models\Departments::find()->where(['or', ['like', 'department_name', $keyword], ['like', 'department_name_arabic', $keyword]])->andWhere(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
+            if ($keyword != '') {
+                $doctors = \common\models\Doctors::find()->where(['or', ['like', 'doctor_name', $keyword], ['like', 'doctor_name_arabic', $keyword]])->andWhere(['status' => 1])->all();
+                $services = \common\models\Services::find()->where(['or', ['like', 'service_name', $keyword], ['like', 'service_name_arabic', $keyword]])->andWhere(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
+                $departments = \common\models\Departments::find()->where(['or', ['like', 'department_name', $keyword], ['like', 'department_name_arabic', $keyword]])->andWhere(['status' => 1])->orderBy([new \yii\db\Expression('-sort_order DESC, sort_order ASC')])->all();
             }
             return $this->render('search-result', [
-                        'language' => $language,
-                        'doctors' => $doctors,
-                        'services' => $services,
-                        'departments' => $departments,
+                'language' => $language,
+                'doctors' => $doctors,
+                'services' => $services,
+                'departments' => $departments,
             ]);
         } else {
             return $this->redirect(Yii::$app->request->referrer);
@@ -1479,7 +1617,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      * Get searck keywords
      */
 
-    public function actionKeywordSearch($language) {
+    public function actionKeywordSearch($language)
+    {
         if (Yii::$app->request->isAjax) {
             $keyword = $_POST['keyword'];
             $doctors = \common\models\Doctors::find()->where(['or', ['like', 'doctor_name', $keyword], ['like', 'doctor_name_arabic', $keyword]])->andWhere(['status' => 1])->all();
@@ -1499,7 +1638,8 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
      * Add Service review
      */
 
-    public function actionServiceReview($language) {
+    public function actionServiceReview($language)
+    {
         if (Yii::$app->request->isAjax) {
             if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
                 $model = new \common\models\ProductReview();
@@ -1535,12 +1675,12 @@ private function sendZeptoEmail($toEmail, $subject, $htmlContent)
             }
         }
     }
-    
-    public function actionBookingSuccess($language) {
+
+    public function actionBookingSuccess($language)
+    {
         $this->view->params['language'] = $language;
         return $this->render('booking-success', [
-                    'language' => $language,
+            'language' => $language,
         ]);
     }
-
 }

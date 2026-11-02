@@ -3,6 +3,8 @@
 use yii\helpers\Url;
 use common\models\Words;
 use common\models\About;
+use common\models\Services;
+use common\models\Departments;
 use yii\widgets\ActiveForm;
 
 $currentUrl = Url::to(Yii::$app->request->url, true);
@@ -23,32 +25,12 @@ $currentUrl = Url::to(Yii::$app->request->url, true);
                 <div class="col-lg-12">
                     <?= $form->field($model, 'name')->textInput(['placeholder' => Words::getValue($language, 'name') . ' *','required' => TRUE])->label(FALSE) ?>
                 </div>
-                <div class="col-lg-6">
-                    <?= $form->field($model, 'age')->textInput(['placeholder' => Words::getValue($language, 'age') . ' *','required' => TRUE])->label(FALSE) ?>
-                </div>
-                <div class="col-lg-6">
-                    <?php
-                    echo $form->field($model, 'gender')
-                            ->dropDownList(
-                                    $genders, // Flat array ('id'=>'label')
-                                    ['prompt' => Words::getValue($language, 'gender') . ' *', 'class' => 'select select2','required' => TRUE]    // options
-                            )->label(FALSE);
-                    ?>
-                    
-                    <!--<div class="form-group field-appointmentenquiry-gender required">-->
-                    <!--    <select name="AppointmentEnquiry[gender]" class="select select2" required>-->
-                    <!--        <option value=""><?php echo Words::getValue($language, 'gender') . ' *'; ?></option>-->
-                    <!--        <?php foreach ($genders as $id => $label): ?>-->
-                    <!--            <option value="<?php echo $id; ?>"><?php echo $label; ?></option>-->
-                    <!--        <?php endforeach; ?>-->
-                    <!--    </select>-->
-                    <!--</div>-->
-                </div>
-                <div class="col-lg-12">
-                    <?= $form->field($model, 'phone_number')->textInput(['placeholder' => Words::getValue($language, 'phone_no') . ' *'])->label(FALSE) ?>
-                </div>
                 <div class="col-lg-12">
                     <?= $form->field($model, 'email')->textInput(['placeholder' => Words::getValue($language, 'email') . ' *','required' => TRUE])->label(FALSE) ?>
+                </div>
+               
+                <div class="col-lg-12">
+                    <?= $form->field($model, 'phone_number')->textInput(['placeholder' => Words::getValue($language, 'phone_no') . ' *'])->label(FALSE) ?>
                 </div>
                 <!--<div class="col-sm-12">-->
                 <!--    <?php // $form->field($model, 'appointment_date')->textInput(['placeholder' => Words::getValue($language, 'your_preferred_date') . ' *', 'id' => 'dateInput'])->label(FALSE) ?>-->
@@ -99,15 +81,23 @@ $currentUrl = Url::to(Yii::$app->request->url, true);
 
                             </div>
                         </div>
-                <div class="col-lg-12">
-                    <?php
-                    echo $form->field($model, 'service')
-                            ->dropDownList(
-                                    $services, // Flat array ('id'=>'label')
-                                    ['prompt' => Words::getValue($language, 'select_department'), 'class' => 'select select2','required' => TRUE]    // options
-                            )->label(FALSE);
-                    ?>
-                </div>
+                 <div class="col-lg-12">
+                        <?= $form->field($model, 'fk_appointment_department')->dropDownList(
+                            $departmentOptions,
+                            ['id' => 'appointment-department', 'prompt' => Words::getValue($language, 'select_department'), 'class' => 'select2 select']
+                        )->label(false) ?>
+                    </div>
+                    <div class="col-lg-12">
+                        <?= $form->field($model, 'service')->dropDownList(
+                            [],
+                            [
+                                'id' => 'appointment-service',
+                                'prompt' => Words::getValue($language, 'select_department_first'),
+                                'class' => 'select2 select',
+                                'disabled' => true
+                            ]
+                        )->label(false) ?>
+                    </div>
                 <div class="col-lg-12">
                                            <?= $form->field($model, 'message')->textarea(['placeholder' => Words::getValue($language, 'message')])->label(FALSE) ?>
                                         </div>

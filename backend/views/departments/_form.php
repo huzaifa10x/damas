@@ -166,6 +166,72 @@ use mihaildev\ckeditor\CKEditor;
                                         </div>
                                         
                                         
+                                        <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'process_heading') ?>
+                                        </div>
+                                        <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'process_heading_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_01_label') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_01_label_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_02_label') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_02_label_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_03_label') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_03_label_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_04_label') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_04_label_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_05_label') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_05_label_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_01_desc') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_01_desc_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_02_desc') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_02_desc_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_03_desc') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_03_desc_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_04_desc') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_04_desc_ar') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_05_desc') ?>
+                                        </div>
+                                          <div class='col-md-6 col-sm-6 col-xs-12 left_padd'>
+                                            <?= $form->field($model, 'step_05_desc_ar') ?>
+                                        </div>
                                         <div class='col-md-3 col-sm-6 col-xs-12 left_padd'>
                                             <?= $form->field($model, 'sort_order')->textInput(['type' => 'number']) ?>
                                         </div>

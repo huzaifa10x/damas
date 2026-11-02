@@ -75,5 +75,5 @@ rm -rf "$OUT"
 
 echo
 echo "Done: $ZIP ($(du -h "$ZIP" | cut -f1))"
-echo "IMPORTANT: set the subdomain to PHP $MIN_PHP_TXT or newer in cPanel → MultiPHP Manager"
+echo "IMPORTANT: set the subdomain to PHP $MIN_PHP_TXT or newer in cPanel â†’ MultiPHP Manager"
 echo "Next: upload it to the subdomain's folder in cPanel and follow deploy/STAGING.md"

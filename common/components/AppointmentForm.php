@@ -33,14 +33,21 @@ class AppointmentForm extends Widget {
         }
     }
 
+    public function getLanguages() {
+        $languages = \common\models\Languages::find()->where(['status' => 1])->all();
+        return ArrayHelper::map($languages, 'id', 'language');
+    }
+
     public function run() {
         $model = new AppointmentEnquiry();
         if ($this->language == 'ar') {
-            $services = ArrayHelper::map(\common\models\Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
-            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender_arabic');
+            $services = ArrayHelper::map(\common\models\Services::find()->where(['status' => 1])->all(), 'id', 'services_name_arabic');
+            $department = ArrayHelper::map(\common\models\Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
+            // $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender_arabic');
         } else {
-            $services = ArrayHelper::map(\common\models\Departments::find()->where(['status' => 1])->all(), 'id', 'department_name');
-            $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender');
+            $department = ArrayHelper::map(\common\models\Departments::find()->where(['status' => 1])->all(), 'id', 'department_name');
+            $services = ArrayHelper::map(\common\models\Services::find()->where(['status' => 1])->all(), 'id', 'services_name');
+            // $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender');
         }
         
         if ($model->load(Yii::$app->request->post())) {
@@ -61,8 +68,9 @@ class AppointmentForm extends Widget {
         return $this->render('appointment-form', [
                     'language' => $this->language,
                     'model' => $model,
-                    'genders' => $genders,
+                    // 'genders' => $genders,
                     'services' => $services,
+                    'department'=> $department
         ]);
     }
 
