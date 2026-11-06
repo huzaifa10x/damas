@@ -213,6 +213,17 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
         }
     </style>
 
+     <script>
+        (function(w,d,s,l,i){ w[l]=w[l]||[]; w[l].push({ 'gtm.start':new Date().getTime(),
+        event:'gtm.js' });
+        var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-WHGCVTW');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E74FZLYF77"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-E74FZLYF77');</script>
+
     <?php $this->head() ?>
 </head>
 
@@ -543,12 +554,49 @@ $whatsapp  = 'https://api.whatsapp.com/send?phone=' . str_replace(' ', '', $cont
                         <div class="footer-newsletter__content">
                             <h2 class="footer-newsletter__title"><?= $isAr ? 'نصائح ذكية للعناية بالبشرة والابتسامة، تصل مباشرة إلى بريدك الإلكتروني' : 'Smart Skin and Smile Tips, Straight to Your Inbox' ?></h2>
                             <p class="footer-newsletter__text"><?= $isAr ? 'عروض موسمية، وعلاجات جديدة، ونصائح صادقة من فريق "داماس". يمكنك إلغاء الاشتراك في أي وقت.' : 'Seasonal offers, new treatments and honest advice from the Damas team. Unsubscribe anytime.   ' ?></p>
-                            <!-- Connect this form to a newsletter endpoint when one is available. -->
+                            <?php
+
+                            use common\models\Newsletter;
+
+                            $newsletterModel = new Newsletter();
+                            ?>
+
+                            <?php $form = \yii\widgets\ActiveForm::begin([
+                                'id' => 'subscribe',
+                                // Pass the current language parameter explicitly so it builds /en/site/subscribe or /en/subscribe
+                                'action' => \yii\helpers\Url::to(['site/subscribe', 'language' => $language ?? Yii::$app->language]),
+                                'method' => 'post',
+                            ]); ?>
+
                             <div class="footer-newsletter__form">
-                                <label class="visually-hidden" for="footer-newsletter-email"><?= $isAr ? 'البريد الإلكتروني' : 'Email address' ?></label>
-                                <input id="footer-newsletter-email" type="email" name="email" placeholder="<?= $isAr ? 'البريد الإلكتروني' : 'Email address' ?>" autocomplete="email" required>
-                                <button type="button"><?= $isAr ? 'اشترك' : 'Subscribe' ?> <span aria-hidden="true">→</span></button>
+                                <?= $form->field($newsletterModel, 'email', [
+                                    'options' => ['tag' => false],
+                                    'template' => "{input}\n{error}"
+                                ])->textInput([
+                                    'id' => 'footer-newsletter-email',
+                                    'placeholder' => $isAr ? 'البريد الإلكتروني' : 'Email address',
+                                    'autocomplete' => 'email',
+                                    'required' => true
+                                ]) ?>
+
+                                <button type="submit">
+                                    <?= $isAr ? 'اشترك' : 'Subscribe' ?> <span aria-hidden="true">→</span>
+                                </button>
                             </div>
+
+                            <?php \yii\widgets\ActiveForm::end(); ?>
+                            <!-- Connect this form to a newsletter endpoint when one is available. -->
+                            <?php if (Yii::$app->session->hasFlash('success')): ?>
+                                <div class="alert alert-success">
+                                    <?= Yii::$app->session->getFlash('success') ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (Yii::$app->session->hasFlash('error')): ?>
+                                <div class="alert alert-danger">
+                                    <?= Yii::$app->session->getFlash('error') ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="footer-newsletter__image" aria-hidden="true">

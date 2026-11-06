@@ -90,6 +90,7 @@ return [
                 '<language>/payment-failed/<order_id>' => 'checkout/payment-failed',
                 '<language>/ajax/add-to-cart' => 'ajax/add-to-cart',
                 '<language>/ajax/cart-remove' => 'ajax/cart-remove',
+                '<language>/subscribe' => 'site/subscribe',
                 // Generic slug rule stays last
                 '<language>/<slug>' => 'site/landing-page',
             ],

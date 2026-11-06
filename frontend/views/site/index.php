@@ -957,6 +957,7 @@ $bookImage     = $isAr ? About::getValue('book_an_appointment_image_arabic', $la
             <img src="https://damasmc.com/uploads/about/Major-Credit-Card-Logo-PNG-Transparent-Image.png" alt="payment gateway" width="500px" />
         </div>
     </section>
+   
 
 </div>
 

@@ -24,6 +24,7 @@ use common\models\Banners;
 use common\models\Blogs;
 use common\models\MetaTags;
 use common\models\Services;
+use common\models\Newsletter;
 
 /**
  * Site controller
@@ -1536,7 +1537,13 @@ class SiteController extends Controller
     {
         $this->layout = 'landing';
         $this->view->params['language'] = $language;
-        $page_details = \common\models\LandingPages::find()->where(['canonical_name' => $slug, 'status' => 1])->one();
+      // 1. Fetch the page details
+    $page_details = \common\models\LandingPages::find()->where(['canonical_name' => $slug, 'status' => 1])->one();
+
+    // 2. Safeguard: If page doesn't exist, throw a 404 error
+    if (!$page_details) {
+        throw new \yii\web\NotFoundHttpException('The requested landing page does not exist.');
+    }
         $sliders = \common\models\LandingPageBanner::find()->where(['landing_page_id' => $page_details->id, 'status' => 1])->all();
         $about = \common\models\LandingPageAbout::find()->where(['landing_page_id' => $page_details->id])->one();
         $video_section = \common\models\LandingPageVideoSection::find()->where(['landing_page_id' => $page_details->id])->one();
@@ -1552,7 +1559,7 @@ class SiteController extends Controller
         $this->view->params['phone'] = $page_details->phone_no;
         $this->view->params['whatsapp'] = $page_details->whatsapp_no;
 
-        $model = AppointmentEnquiryListing();
+        $model = new AppointmentEnquiryListing();
         if ($language == 'ar') {
             $service_list = ArrayHelper::map(Departments::find()->where(['status' => 1])->all(), 'id', 'department_name_arabic');
             $genders = ArrayHelper::map(Genders::find()->where(['status' => 1])->all(), 'id', 'gender_arabic');
@@ -1683,4 +1690,20 @@ class SiteController extends Controller
             'language' => $language,
         ]);
     }
+
+   public function actionSubscribe()
+{
+    $model = new \common\models\Newsletter();
+
+    if (Yii::$app->request->isPost) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Thank you for subscribing!');
+        } else {
+            $errors = $model->getFirstErrors();
+            Yii::$app->session->setFlash('error', reset($errors) ?: 'Subscription failed. Please try again.');
+        }
+    }
+
+    return $this->goBack(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
+}
 }
